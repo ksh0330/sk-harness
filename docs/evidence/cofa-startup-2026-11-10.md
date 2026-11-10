@@ -38,6 +38,7 @@ fatal: cannot change to '<TEMP>/task with spaces': Permission denied
 
 ## 재현 명령과 기록
 
+- [공개 GitHub Clone 후 검증](cofa-public-clone.log): 로그인 후 `54bdd3d` push 완료 및 로컬·원격 SHA 일치 확인. 공개 저장소에서 새 TEMP로 복제한 코드로 init/status, 입력 보존, 갱신된 메인 스킬 설치, 기본 훅 비활성 PASS. Windows 실행이며 Cofa/Linux 검증은 아니다.
 - [설치·보존·장부·Git 명령 출력](cofa-startup-commands.log): 임시 경로를 `<TEMP>`로 치환. 테스트 fixture만 포함.
 - [CLI 로딩·발견·모델 결과 요약](cofa-startup-runtime.json): 실제 prompt-input과 skills/list에서 필요한 필드만 추출.
 - [수정 후 init 테스트](cofa-startup-init-tests.log): 변경된 스킬을 포함한 3개 설치 테스트.

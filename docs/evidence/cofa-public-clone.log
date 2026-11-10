@@ -1,0 +1,43 @@
+$ git clone https://github.com/ksh0330/sk-harness.git <TEMP>\sk-harness
+Cloning into '<TEMP>\sk-harness'...
+
+exit=0
+
+$ git rev-parse HEAD
+54bdd3d85626f1936bcc5c27cf16dd8ae2ec7398
+
+exit=0
+
+$ <PYTHON> -B <TEMP>\sk-harness\hx init
+hx initialised in <TEMP>\task  (deadline: not set KST, phase: analyze)
+  created AGENTS.md
+  created .agents/skills/hx-design/SKILL.md
+  created .agents/skills/hx-main/SKILL.md
+  created .agents/skills/hx-mediator/SKILL.md
+  created .agents/skills/hx-ship/SKILL.md
+hx command: "<PYTHON>" "<TEMP>/sk-harness/hx"
+shared state: collab/BOARD.md (generated)  notes to the main session: collab/INBOX.md
+
+exit=0
+
+$ <PYTHON> -B <TEMP>\sk-harness\hx status
+# hx status  2026-11-10T23:35:10+09:00
+time: no deadline set (hx init --deadline 16:00)
+
+## Requirements (MUST proven 0/0)
+| id | kind | status | proof | checks | requirement | acceptance |
+|---|---|---|---|---|---|---|
+| - | - | - | - | - | (none recorded: `hx req add`) | - |
+
+## Checks
+| check | state | exit | when | sec | result | command |
+|---|---|---|---|---|---|---|
+| - | - | - | - | - | (none: `hx run --name NAME --req R1 -- <command>`) | - |
+
+phase: analyze
+
+
+exit=0
+
+PUBLIC CLONE + INIT + STATUS + PRESERVATION: PASS
+Windows execution; not Linux/Cofa evidence.

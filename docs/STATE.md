@@ -11,6 +11,7 @@
 - 실제 CLI prompt-input의 AGENTS 주입, skills/list의 네 hx 스킬 enabled 확인. 로컬 Astra High 실행은 Windows 샌드박스의 임시 경로 접근 거부로 본문 읽기·hx 실행·모델 주도 체크포인트를 완료하지 못했다. 권한·신뢰·전역 설정 우회 없음. 네이티브 훅·Cofa 실행은 미검증.
 - 근거: `docs/evidence/cofa-startup-2026-11-10.md` 및 연결된 로그. 원본 프롬프트·이벤트는 비공개 `.audit-work/startup`에만 보관. 개인 ZIP·세션 백업 복원 없음.
 - 이번 사용자 요청은 관련 변경 검증·커밋과 비밀정보 점검 후 GitHub push까지 명시적으로 승인했다. 과거의 원격 push 금지/확인 대기는 이번 한정 작업에 적용하지 않는다. 본선 과제의 외부 전송 허용으로 확대하지 않는다.
+- 배포 확인: 사용자 GitHub 로그인 후 `54bdd3d`를 origin/main에 push했고 원격 SHA 일치를 확인했다. 공개 GitHub에서 새 TEMP 폴더로 Clone한 수정본으로 init/status·입력 보존·갱신 스킬 설치·기본 훅 비활성을 확인했다(`docs/evidence/cofa-public-clone.log`). Windows 검증이며 Cofa/Linux 실행 증거는 아니다.
 - 현장: 과제·제출 루트, Clone·사전 코드·Python 허용, Python 3.10+, 제공 Codex 권한과 Sol 6.1/High, 제출 방식 확인. 읽기 권한 오류는 정상 플랫폼 절차로 해결하고 첫 프롬프트로 실제 적용을 재검증한다.
 
 ## 이전 준비·연습 기록 (보존)
