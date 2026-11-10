@@ -9,6 +9,7 @@ import sys
 import threading
 import time
 import unittest
+import unittest.mock
 
 from support import REPO, TempCase
 from hx import collab, ledger, util, project, snap
@@ -200,6 +201,30 @@ class EvidenceAudit(TempCase):
             snap.snap(self.dir, "Unverified")
         snap.snap(self.dir, "Initial analysis", wip=True)
         self.assertEqual(snap.tags(self.dir), [])
+
+    def test_checkpoint_without_git_identity_uses_temporary_one_and_writes_no_config(self):
+        empty = self.dir.parent / f"{self.dir.name}-gitconfig"
+        empty.write_text("", encoding="utf-8")
+        self.addCleanup(empty.unlink)
+        isolated = {"GIT_CONFIG_GLOBAL": str(empty), "GIT_CONFIG_NOSYSTEM": "1"}
+        cleared = ("GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL", "EMAIL")
+        saved = {key: os.environ.pop(key) for key in cleared if key in os.environ}
+        self.addCleanup(os.environ.update, saved)
+        with unittest.mock.patch.dict(os.environ, isolated):
+            project.init(self.dir, with_git=True)
+            self.write("work.py", "VALUE = 1\n")
+            snap.snap(self.dir, "Initial analysis", wip=True)
+            author = snap.git(self.dir, "log", "-1", "--format=%an <%ae>").stdout.strip()
+            local = snap.git(self.dir, "config", "--local", "--get-regexp", "^user\\.", check=False).stdout
+        self.assertEqual(author, "hx <hx@localhost>")
+        self.assertEqual(local, "")
+        self.assertEqual(empty.read_text(encoding="utf-8"), "")
+
+    def test_status_without_deadline_does_not_suggest_the_event_end_time(self):
+        minutes, advice = ledger.time_left(self.dir)
+        self.assertIsNone(minutes)
+        self.assertIn("optional", advice)
+        self.assertNotIn("16:00", advice)
 
     def test_automatic_checkpoint_preserves_existing_index(self):
         project.init(self.dir, with_git=True)

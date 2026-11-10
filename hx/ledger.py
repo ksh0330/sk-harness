@@ -472,7 +472,7 @@ def time_left(root):
     """(minutes or None, advice). The advice encodes the time-box rules for the final."""
     deadline = (util.read_json(Path(root) / util.STATE / "config.json", {}) or {}).get("deadline")
     if not deadline:
-        return None, "no deadline set (hx init --deadline 16:00)"
+        return None, "no deadline set (optional; use the task's confirmed coding limit: hx init --deadline HH:MM)"
     try:
         hour, minute = map(int, deadline.split(":"))
     except ValueError:
