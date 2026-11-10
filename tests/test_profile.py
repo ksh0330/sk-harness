@@ -13,6 +13,11 @@ def findings(report, column=None):
 
 
 class ColumnProfiling(TempCase):
+    def test_duration_is_not_mistaken_for_a_ratio(self):
+        report = self.table("duration_min,ratio_ok\n90,90\n150,150\n")
+        self.assertNotIn("ratio/percent", findings(report, "duration_min"))
+        self.assertIn("exceeds 100", findings(report, "ratio_ok"))
+
     def table(self, text, name="t.csv"):
         return profile.profile_table(load_table(self.write(name, text)))
 

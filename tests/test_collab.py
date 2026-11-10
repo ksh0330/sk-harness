@@ -78,7 +78,10 @@ class Decisions(Base):
         self.assertIn("was raised after the user's last message", out)
         self.user_speaks()                                               # now the user really replied
         self.assertIn("D1 decided by the user: A", self.hx("decide", "set", "D1", "--choice", "A", "--note", "A로"))
-        self.assertIn("D1 [사용자] 범위 → **A**", self.board())
+        self.assertIn("D1 [사용자(에이전트가 기록)] 범위 → **A**", self.board())
+        decision = json.loads((self.dir / ".hx" / "reqs.json").read_text(encoding="utf-8"))["items"][-1]
+        self.assertFalse(decision["confirmed"])
+        self.assertTrue(decision["prompt_observed"])
 
     def test_stakeholder_questions_feedback_and_inbox(self):
         out = self.hx("ask", "음수 입력도 더해야 합니까?", "--to", "dm", "--why", "입력 검증 범위가 달라짐", "--assume", "음수 허용")

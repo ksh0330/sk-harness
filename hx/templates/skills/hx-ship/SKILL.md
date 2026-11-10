@@ -1,18 +1,17 @@
 ---
 name: hx-ship
-description: 구현이 끝났다고 판단될 때와 마감이 가까울 때, 요구사항·실제 실행·테스트·Git 상태를 종합해 제출 가능 여부를 확인하고 제출물을 정리하는 절차.
+description: Verify a completed implementation or a near-deadline deliverable against original requirements, real execution, test evidence, Git and Cofa submission rules.
 ---
 
-# 최종 검증과 제출 준비
+# Final verification
 
-문서에 완료라고 적혀 있는 것과 실제로 되는 것을 맞춰 보는 단계다. 여기서 새 기능을 만들지 않는다.
+`hx` means `{HX}`. Use `.hx/MODEL-POLICY.md`; do not reduce core verification to save tokens. Avoid new optional features at this stage.
 
-1. **처음부터 실행해 본다.** README에 적은 실행 명령을, 방금 받은 사람처럼 그대로 입력한다. 산출물이 요구된 이름·형식·위치로 나오는지 본다. 화면이 있으면 입력 → 처리 → 저장 → 새로고침 후에도 남아 있는지까지 본다. 직접 볼 수 없는 화면은 주소와 조작 순서, 기대 결과를 사용자에게 주고 확인을 부탁하며, 확인 전에는 미검증으로 적는다.
-2. **요구사항을 하나씩 대조한다.** 보드의 요구사항마다 "확인 방법"에 적은 것을 실제 출력과 비교한다. 테스트 통과가 곧 요구 충족은 아니다. 테스트가 그 요구를 정말 검사하는지 본다.
-3. **`hx gate --final`.** 모든 검사를 다시 돌리고 막는 항목을 보여 준다. BLOCK이 있으면 고치거나, 고칠 수 없으면 사용자에게 그대로 알리고 무엇을 뺄지 결정을 받는다(`hx decide add`).
-4. **`hx ship`.** `collab/REPORT.md`에 요구사항 ↔ 증거 ↔ 결정 ↔ 커밋을 묶은 보고서를 만들고, 비밀값·내 PC에만 있는 절대 경로·외부 네트워크 의존·README 누락을 검사한다.
-5. **README를 맞춘다.** 실행 방법, 접근 방식과 그렇게 고른 이유(버린 대안 포함), 검증 결과, 가정, 알려진 한계. 사용자가 이 내용으로 직접 설명해야 하므로 실제와 다른 문장을 남기지 않는다.
-6. **마지막 체크포인트.** `hx snap "제출 상태"` 뒤 `git status`가 깨끗한지, `git log --oneline`에 단계별 커밋이 남아 있는지 확인한다.
-7. **사용자에게 넘긴다.** 충족한 것, 못 한 것, 사용자가 직접 확인해야 하는 것(화면, 제출 절차)을 나눠 전한다. 제출 버튼을 누르는 것과 push는 사용자가 한다.
+1. Follow the README from a clean start. Verify exact output names, formats and locations. For a UI, check input, processing, persistence/reload and error paths. If interactive observation is unavailable, mark it unverified and give the user a concrete check; do not report it as passed.
+2. Match every original requirement and acceptance condition with actual outputs and meaningful tests. Audit the tests themselves: wrong expectations, no assertions, zero/all-skipped tests and stale inputs can yield misleading success.
+3. Run `hx gate --final` once after final code changes. Inspect any failure and rerun affected checks after fixing it. High-severity review items need mediator closure. Pending material decisions need real user answers. Gate PASS covers registered evidence, not omitted requirements or all product behavior.
+4. Inspect `git diff` and status. Commit only owned changes. Checkpoint tested code with `hx snap "validated milestone"` only if the whole task tree is yours; otherwise use explicit Git paths. Re-render the board after the commit so its HEAD is current. Verify the live Git state, since a tracked board cannot contain its own future commit hash.
+5. Use `hx ship --no-run` after the verified final gate to avoid an identical repeat. Review `collab/REPORT.md` against the source evidence and write a concise Korean README describing startup, tests, assumptions and remaining limits.
+6. Confirm current Cofa submission instructions and size from supplied authoritative material. Git ignore rules do not exclude files from an uploaded folder. Do not remove inputs, publish, push or submit externally without the applicable authorization. Keep organizer-provided tests and private evaluation expectations out of solver prompts.
 
-시간이 모자라면 순서는 3 → 6 → 5다. 깨진 상태로 끝내지 않는다. 마지막 변경이 검사를 깨뜨렸고 고칠 시간이 없으면 `hx back`으로 마지막 정상 체크포인트로 돌아가 그 상태를 제출한다(버린 작업은 브랜치에 남는다).
+Report implemented behavior, executed checks and results, commit, remaining work and unverified Cofa behavior. A real user-participation rehearsal is distinct from an automated simulation. Never state that instructions guarantee user questions, automatic commits or hook execution.

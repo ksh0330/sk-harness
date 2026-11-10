@@ -17,7 +17,7 @@ SENTINELS = (-9999, -999, -99, -1, 999, 9999, 99999, 999999)
 ID_HINT = re.compile(r"(id|_no|_key|_code|_num)$", re.I)
 DATE_HINT = re.compile(r"date|time|timestamp|(^|_)(dt|ts)$|일자|일시|시각|시간", re.I)
 NONNEG_HINT = re.compile(r"qty|quantity|count|cnt|yield|duration|thick|proc|_(min|sec|ms|hr|hours?)$|수량|수율|시간", re.I)
-PCT_HINT = re.compile(r"yield|pct|percent|ratio|수율|비율", re.I)
+PCT_HINT = re.compile(r"yield|pct|percent|(?<![a-z])ratio(?![a-z])|수율|비율", re.I)
 LEVELS = {"high": 0, "med": 1, "info": 2}
 
 

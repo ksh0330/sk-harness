@@ -265,11 +265,21 @@ def _decide(args, root):
 
 def _phase(args, root):
     if args.action == "next":
+        if collab.git_facts(root).get("repo"):
+            snap.require_repo(root)
+            snap.require_clean_index(root)
+        previous_config = collab.config(root)
         current, target = collab.phase_next(root, args.note, args.user_said, args.force)
         print(f"PHASE: {current} -> {target}")
         collab.write_board(root)
         if collab.git_facts(root).get("repo"):
-            head, staged = snap.commit_all(root, f"[hx-phase] {current} done -> {target}" + (f": {args.note}" if args.note else ""))
+            try:
+                head, staged = snap.commit_all(root, f"[hx-phase] {current} done -> {target}" + (f": {args.note}" if args.note else ""))
+            except snap.SnapError:
+                with util.lock(root):
+                    collab.save_config(root, previous_config)
+                    collab.write_board(root)
+                raise
             print(f"  checkpoint {head} ({len(staged)} file(s))" if head else "  nothing new to commit")
         else:
             print("  not a git repository: nothing was preserved (hx init --git)")

@@ -92,7 +92,7 @@ def run(net=False):
     free = shutil.disk_usage(".").free / 2 ** 30
     print(f"disk     {free:.1f} GiB free")
     if net:
-        print("network  (TCP 443 reachability only; nothing is sent)")
+        print("network  (DNS queries and TCP 443 connections; no application payload; requires venue permission)")
         for host in HOSTS:
             try:
                 with socket.create_connection((host, 443), timeout=4):
@@ -100,6 +100,6 @@ def run(net=False):
             except OSError as exc:
                 print(f"  {host:<22} BLOCKED/unreachable ({type(exc).__name__})")
     else:
-        print("network  not probed (add --net at the venue to see which hosts are reachable)")
+        print("network  not probed (use --net only when the venue explicitly permits external probes)")
     print(f"DOCTOR: {'FAIL' if problems else 'OK'}  blocking_problems={problems}")
     return problems

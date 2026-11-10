@@ -1,11 +1,14 @@
 """Shared helpers: state directory, JSON files, time, console encoding, process control."""
 
 import fnmatch
+import hashlib
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import threading
 import time
 from contextlib import contextmanager
 from datetime import datetime
@@ -20,6 +23,7 @@ SKIP_DIRS = {".git", STATE, "node_modules", ".venv", "venv", "env", "__pycache__
 CODE_EXT = {".py", ".ipynb", ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".html", ".css", ".vue", ".svelte",
             ".sql", ".sh", ".ps1", ".bat", ".cmd", ".java", ".kt", ".go", ".rs", ".c", ".cpp", ".h", ".cs",
             ".yaml", ".yml", ".toml", ".ini", ".cfg"}
+DATA_EXT = {".csv", ".tsv", ".json", ".jsonl", ".xlsx", ".xls", ".parquet", ".npy", ".npz"}
 
 
 def setup_console():
@@ -60,7 +64,8 @@ _HELD = set()
 def lock(root, timeout=10):
     """Serialise ledger updates between the main and the mediator session (re-entrant within one process)."""
     path = state_dir(root, "run") / "lock"
-    if str(path) in _HELD:
+    owner = (str(path.resolve()), threading.get_ident())
+    if owner in _HELD:
         yield
         return
     started = time.time()
@@ -69,20 +74,15 @@ def lock(root, timeout=10):
             handle = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
             break
         except FileExistsError:
-            try:
-                if time.time() - os.path.getmtime(path) > 30:  # left behind by a killed process
-                    os.remove(path)
-                    continue
-            except OSError:
-                continue
             if time.time() - started > timeout:
-                raise OSError("the hx ledger is locked by another hx process; retry in a moment") from None
+                raise OSError("the hx ledger is locked; retry, or inspect the lock owner before removing an abandoned lock") from None
             time.sleep(0.05)
-    _HELD.add(str(path))
+    os.write(handle, f"pid={os.getpid()} thread={threading.get_ident()}\n".encode("ascii"))
+    _HELD.add(owner)
     try:
         yield
     finally:
-        _HELD.discard(str(path))
+        _HELD.discard(owner)
         os.close(handle)
         try:
             os.remove(path)
@@ -101,18 +101,28 @@ def read_json(path, default=None):
 def write_json(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp = path.with_name(path.name + ".tmp")
-    with open(temp, "w", encoding="utf-8", newline="\n") as handle:
-        json.dump(value, handle, ensure_ascii=False, indent=2)
-        handle.write("\n")
-    os.replace(temp, path)  # atomic: an interrupted write never leaves a half file
+    fd, temp = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+            json.dump(value, handle, ensure_ascii=False, indent=2)
+            handle.write("\n")
+        os.replace(temp, path)
+    finally:
+        if os.path.exists(temp):
+            os.unlink(temp)
 
 
 def write_text(path, text):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as handle:
-        handle.write(text)
+    fd, temp = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(text)
+        os.replace(temp, path)
+    finally:
+        if os.path.exists(temp):
+            os.unlink(temp)
 
 
 def now():
@@ -226,3 +236,29 @@ def source_mtime(root, patterns=None, limit=20000):
 def short(value, width=28):
     text = str(value).replace("\n", " ").replace("|", "\\|")  # keeps markdown tables intact, value still readable
     return text if len(text) <= width else text[:width - 1] + "…"
+
+
+def source_fingerprint(root, patterns=None):
+    """Hash source and input contents with paths, detecting deletion and preserved mtimes.
+
+    Explicit watch patterns define a check's dependency scope. Generated logs and
+    state are excluded. Errors are propagated rather than certifying a partial scan.
+    """
+    digest = hashlib.sha256()
+    for folder, dirs, files in os.walk(root):
+        dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
+        for name in sorted(files):
+            path = Path(folder) / name
+            relative = path.relative_to(root).as_posix()
+            if patterns:
+                if not any(fnmatch.fnmatch(relative, pattern) for pattern in patterns):
+                    continue
+            elif path.suffix.lower() not in CODE_EXT | DATA_EXT:
+                continue
+            digest.update(relative.encode("utf-8") + b"\0")
+            content_hash = hashlib.sha256()
+            with path.open("rb") as handle:
+                for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                    content_hash.update(chunk)
+            digest.update(content_hash.digest())
+    return digest.hexdigest()

@@ -1,59 +1,24 @@
 ---
 name: hx-design
-description: 해결 전략, 알고리즘, 기술 스택, 아키텍처, 데이터 저장 방식을 정해야 할 때 대안을 비교해 사용자 결정으로 올리는 절차. 설계 단계에 들어갈 때와, 구현 중 선택한 방식이 목표를 못 맞춘다는 것이 드러났을 때 사용한다.
+description: Compare algorithms, stack, architecture and data design for a material task decision or reconsider a failing approach using actual data, constraints and evaluation criteria.
 ---
 
-# 대안 평가와 설계 결정
+# Technical decisions
 
-처음 떠오른 방식이나 사용자가 처음 말한 방식을 그대로 채택하지 않는다. 반대로 복잡한 방식이 더 낫다고 가정하지도 않는다. 이전 대회의 버스 노선 과제에서는 직선거리 기반 배차만 놓고 진행하다가, 실제 도로 거리·차량 정원·탑승 지점 최적화 같은 대안을 뒤늦게 검토했다. 이 절차의 목적은 그런 누락을 구현 전에 잡는 것이다.
+`hx` means `{HX}`. Read `.hx/MODEL-POLICY.md` if not already loaded. Use High for ordinary design, Extra High only for difficult optimization, consequential architecture or unresolved conflicting approaches; use the supported runtime/user controls.
 
-## 1. 문제를 먼저 분류한다
+Define the real business objective, hard constraints, data quality and evaluation metric. Do not assume the first solution or a more complex solution is best. Consider only relevant families:
 
-과제가 실제로 요구하는 것이 무엇인지 한 문장으로 쓴다. 대부분 다음 중 하나이거나 조합이다.
+- Scheduling, assignment, routing or location: greedy baseline, dynamic programming, MILP/CP, local search; capacities, actual road/walking distance and travel time when relevant.
+- Prediction or defect detection: statistical/rule baseline, tree/linear models; time/group splits and leakage checks. Neural methods need enough data, resources and benefit.
+- Pipelines and reconciliation: keys, validation, idempotency, transactions and recovery.
+- Services: end-to-end user flow, storage, concurrent changes, permissions, API contracts and errors.
+- Semiconductor tasks: read `.hx/DOMAIN.md` only when needed, then verify task-specific process, equipment, yield or time-series assumptions from provided evidence.
 
-| 문제의 형태 | 검토할 계열 |
-|---|---|
-| 배정·일정·경로·입지·적재 (최적화) | 탐욕 규칙, 동적 계획법, 정수계획(MILP)·제약 프로그래밍, 국소 탐색·메타휴리스틱, 다목적일 때 가중합 또는 사전식 우선순위. 경로면 VRP 계열, 입지면 클러스터링·시설 입지 |
-| 값·상태 예측, 분류 | 규칙·통계 기준선, 선형·트리 모델, 부스팅, 필요할 때만 신경망. 시간순·그룹 분할로 평가 |
-| 이상·결함 탐지 | 그룹별 통계 한계(중앙값·MAD, EWMA 관리도), Isolation Forest류, 라벨이 충분할 때만 지도 학습. 이미지면 전통 특징 대 CNN |
-| 로그·텍스트·이벤트 분석 | 정규화 후 집계·상태 전이, 패턴 규칙, 필요할 때만 임베딩·LLM |
-| 데이터 대조·파이프라인·업무 자동화 | 키 기준 대조와 규칙 검증, 배치 대 증분, 멱등 처리 |
-| 조회·등록·승인 같은 서비스 | 화면 유무, 저장소(파일·SQLite·서버 DB), 동시 수정, 역할과 권한 |
-| 설계 검증·테스트 자동화 | 규칙 검사, 생성 기반 테스트, 시뮬레이션, 커버리지 기준 |
+Compare two or three viable approaches, including a simple baseline. Evaluate constraint coverage, measured quality, runtime, available packages, explainability and remaining time. Do not assume external APIs, internet, installations or platform changes are allowed. Use `hx doctor` without network probing by default.
 
-낯선 분야면 기본 개념과 통상적인 해결 방법을 먼저 짧게 조사한다(`.hx/DOMAIN.md`에 반도체 제조 용어가 있다). 외부 지도·라우팅 API처럼 이 환경에서 쓸 수 없는 것은 후보에서 빼되, 뺐다는 사실을 적는다.
+For a consequential user choice, record `hx decide add "decision" --option "A: ..." --option "B: ..." --recommend A --why "data and constraints" --impact "tradeoff"`, show `hx brief`, and wait for the actual reply. Existing explicit choices need no repeat approval. If no material alternative exists, explain that fact instead of inventing one; record the user's authorized plan and any phase exception transparently.
 
-## 2. 후보를 두세 개 세운다
+Save the agreed implementation checklist and tests in `collab/PLAN.md`. For relevant risks, specify schema/invariants, empty or malformed inputs, duplicates, concurrency, recovery, API/UI integration and performance. Record routine reversible choices with `hx decide log`. Prefer tests that can detect a real failure over tests that mirror code.
 
-- 가장 단순한 기준선 하나 (항상 포함한다. 비교의 바닥이자 시간이 모자랄 때의 대비책이다)
-- 이 문제 형태의 표준적인 방법 하나
-- 필요하면 더 강한 방법 하나
-
-각 후보를 같은 기준으로 한 줄씩 평가한다: 과제의 실제 목적과 평가 지표에 맞는가, 필요한 데이터가 있고 품질이 충분한가, 제약을 다 표현할 수 있는가, 계산 시간, 남은 시간 안에 구현·검증이 되는가, 결과를 설명할 수 있는가, 이 환경에 필요한 라이브러리가 있는가(`hx doctor`).
-
-## 3. 사용자 결정으로 올린다
-
-```
-hx decide add "핵심 알고리즘" --option "A 탐욕(납기순): 30분, 제약 전부 표현, 최적성 보장 없음" --option "B MILP: 90분, 소규모만 풀림, 최적" --option "C A로 시작해 국소 탐색으로 개선: 60분" --recommend C --why "기준선을 먼저 확보하고 남는 시간에 개선" --impact "B는 시간이 모자라면 결과물이 없을 위험"
-```
-
-`hx brief`를 보여 주고 기다린다. 사용자가 고르거나 고치면 `hx decide set D2 --choice C --note "사용자 원문"`으로 기록하고 계획에 반영한다. 추천과 다른 선택을 받았을 때 우려가 있으면 한 번만 말하고 따른다.
-
-## 4. 그 밖의 설계 항목
-
-과제에 해당하는 것만, 위험이 큰 것일수록 깊게 본다. 해당 없으면 넘어간다.
-
-- **스택과 실행 방식**: 기존 프로젝트가 있으면 그 스택을 따른다. 비어 있으면 `hx doctor`에 있는 것으로 고른다. 설치가 필요한 선택은 사용자 결정이다.
-- **데이터 저장**: 한 번 계산하고 끝나면 파일, 여러 번 고치고 조회하면 SQLite, 그 이상은 근거가 있을 때만. 스키마에는 키·필수 여부·허용 값을 정한다.
-- **정합성과 동시성**: 같은 것을 두 번 처리하면 어떻게 되는가, 두 사용자가 동시에 고치면 어떻게 되는가, 중간에 실패하면 무엇이 남는가.
-- **입력 검증과 오류 처리**: 빈 값, 잘못된 형식, 범위 밖, 중복, 참조가 깨진 값에 대해 무엇을 돌려주는가.
-- **인증·권한·보안**: 사용자 구분이 요구되는가. 요구되지 않으면 넣지 않되 그 판단을 적는다. 비밀값을 코드에 넣지 않는다.
-- **API와 화면의 연결**: 경로·입력·출력·오류 형식을 먼저 정하고 양쪽이 같은 것을 본다.
-- **성능과 자원**: 데이터 크기와 제한 시간에서 실제로 도는가. 추정하지 말고 한 번 재 본다.
-- **테스트**: 단위, 통합, 끝에서 끝까지(E2E) 중 이 과제의 위험을 잡는 것이 무엇인가.
-
-이 중 사용자가 정해야 할 만큼 영향이 큰 것은 같은 방식으로 `hx decide add`에 올리고, 나머지는 `hx decide log "항목" --choice "선택" --why "이유"`로 한 줄 남긴다.
-
-## 5. 구현 중에 틀렸다는 것이 드러나면
-
-선택한 방식이 지표나 제약을 못 맞춘다는 증거(실행 결과)가 나오면 계속 밀지 말고 멈춘다. 증거와 함께 대안을 다시 `hx decide add`로 올린다. 기준선이 이미 돌고 있으면 그것을 지키면서 바꾼다.
+If measured evidence contradicts the chosen approach, preserve the working baseline, explain the impact and ask before a material redesign. Never remove security, integrity or core tests to save tokens.

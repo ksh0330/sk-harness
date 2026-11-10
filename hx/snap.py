@@ -112,6 +112,7 @@ def tags(root):
 def commit_all(root, message):
     """Stage everything that is not excluded and commit it. Returns (short hash or None, staged paths)."""
     require_repo(root)
+    require_clean_index(root)
     _protect(root)
     git(root, "add", "-A")
     staged = [line for line in git(root, "diff", "--cached", "--name-only").stdout.splitlines() if line]
@@ -122,6 +123,12 @@ def commit_all(root, message):
     return git(root, "rev-parse", "--short", "HEAD").stdout.strip(), staged
 
 
+def require_clean_index(root):
+    """Never absorb a user's pre-existing staged work into an automatic checkpoint."""
+    if git(root, "diff", "--cached", "--name-only").stdout.strip():
+        raise SnapError("the index already contains staged changes; preserve them and create a scoped Git commit manually")
+
+
 def snap(root, label="", wip=False):
     require_repo(root)
     state = ledger.compute(root)
@@ -130,6 +137,8 @@ def snap(root, label="", wip=False):
     if not wip and (failing or stale):
         raise SnapError(f"not a verified state: failing={failing} stale={stale}. Run `hx regress` and fix, "
                         f"or save work in progress with `hx snap --wip` (no ok-tag).")
+    if not wip and (not state["checks"] or any(value != "PASS" for value in state["states"].values())):
+        raise SnapError("no substantive passing evidence for a verified checkpoint; use `hx snap --wip`")
     skipped = _protect(root)
     known = tags(root)
     number = int(known[-1].rsplit("-", 1)[1]) + 1 if known else 1

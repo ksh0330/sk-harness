@@ -23,7 +23,7 @@ INBOX_HEAD = ("# INBOX — 사용자와 중재 세션이 메인 세션에 남기
 
 
 def config(root):
-    return util.read_json(util.state_dir(root) / "config.json", {}) or {}
+    return util.read_json(Path(root) / util.STATE / "config.json", {}) or {}
 
 
 def save_config(root, data):
@@ -105,8 +105,8 @@ def phase_blockers(root, user_said=""):
         if missing:
             reasons.append(f"MUST not yet done and proven: {', '.join(missing)}")
     elif current == "verify":
-        if any(item["kind"] == "REVIEW" and item["status"] == "open" and item["severity"] == "high" for item in items):
-            reasons.append("a high-severity review item is still open")
+        if any(item["kind"] == "REVIEW" and item["status"] != "closed" and item["severity"] == "high" for item in items):
+            reasons.append("a high-severity review item is still open or awaiting independent verification")
     return reasons
 
 
@@ -202,6 +202,10 @@ def review_set(root, item_id, status, note=""):
         item = ledger.find_item(data, item_id)
         if item["kind"] != "REVIEW":
             raise ValueError(f"{item_id} is not a review item")
+        if status not in ("open", "handled", "closed"):
+            raise ValueError("review status must be open, handled or closed")
+        if status == "closed" and item["status"] != "handled":
+            raise ValueError("only a handled review can be independently closed")
         if status in ("handled", "open") and not note.strip():
             raise ValueError("--note must say what was done (file/commit/test) or why it is reopened")
         item["status"] = status
@@ -315,9 +319,13 @@ def write_board(root):
     root = Path(root)
     if not (root / util.STATE / "config.json").is_file():
         return
-    if not (root / INBOX).is_file():
-        util.write_text(root / INBOX, INBOX_HEAD)
-    util.write_text(root / BOARD, render_board(root))
+    with util.lock(root):
+        if not (root / INBOX).is_file():
+            util.write_text(root / INBOX, INBOX_HEAD)
+        content = render_board(root)
+        board = root / BOARD
+        if not board.is_file() or board.read_text(encoding="utf-8") != content:
+            util.write_text(board, content)
 
 
 # ---------------------------------------------------------------- audit (for the mediator; changes nothing)
@@ -363,8 +371,8 @@ def audit(root):
         if item["kind"] == "DECISION" and item["status"] == "pending":
             findings.append(("med", f"{item['id']} waits for the user: {util.short(item['text'], 70)}"))
         if item["kind"] == "DECISION" and item["owner"] == "user" and item["status"] == "decided" and not item.get("confirmed"):
-            findings.append(("low", f"{item['id']} is recorded as the user's choice ({util.short(item['choice'], 40)}) without hook "
-                                    f"confirmation: ask the user whether they really decided this"))
+            findings.append(("low", f"{item['id']} is recorded as the user's choice ({util.short(item['choice'], 40)}); "
+                                    f"verify the recorded quote against the conversation, because a hook cannot prove consent"))
         if item["kind"] == "QUESTION" and item["status"] == "open":
             target = "stakeholder (DM)" if item.get("to") == "dm" else "user"
             findings.append(("low", f"{item['id']} unanswered question for the {target}; working assumption: {item['assume'] or 'NONE'}"))

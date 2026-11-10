@@ -12,6 +12,7 @@ import re
 import subprocess
 import threading
 import time
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -39,7 +40,7 @@ def _locked(function):
 # ---------------------------------------------------------------- requirements
 
 def load_reqs(root):
-    return util.read_json(util.state_dir(root) / "reqs.json", {"items": []})
+    return util.read_json(Path(root) / util.STATE / "reqs.json", {"items": []})
 
 
 def save_reqs(root, data):
@@ -84,7 +85,7 @@ def add_question(root, text, assume="", to="user", why=""):
 def _marker(root, name):
     """Timestamp written by the agent hooks (e.g. when the user last spoke); None when hooks are not installed."""
     try:
-        return float((util.state_dir(root, "run") / name).read_text(encoding="utf-8").strip())
+        return float((Path(root) / util.STATE / "run" / name).read_text(encoding="utf-8").strip())
     except (OSError, ValueError):
         return None
 
@@ -124,11 +125,18 @@ def decide(root, item_id, choice, note=""):
     item = find_item(data, item_id)
     if item["kind"] != "DECISION" or item["owner"] != "user":
         raise ValueError(f"{item_id} is not a user decision")
+    choice = choice.strip()
+    matches = [option for option in item["options"]
+               if choice.casefold() in (option.casefold(), option.partition(":")[0].strip().casefold())]
+    if not choice or len(matches) != 1:
+        raise ValueError("--choice must name exactly one recorded option (full text or its label before ':')")
     spoke = _marker(root, "last_user_prompt")
     if spoke is not None and spoke < item["created_ts"]:
         raise ValueError(f"{item['id']} was raised after the user's last message, so the user cannot have answered it yet. "
                          f"Show `hx brief` to the user, stop, and record the choice after they reply.")
-    item.update(status="decided", choice=choice.strip(), note=note.strip(), decided=util.stamp(), confirmed=spoke is not None)
+    # A timestamp proves only that a prompt arrived, never what the user approved.
+    item.update(status="decided", choice=choice, note=note.strip(), decided=util.stamp(),
+                confirmed=False, prompt_observed=spoke is not None)
     save_reqs(root, data)
     return item
 
@@ -232,11 +240,11 @@ def answer(root, item_id, text, source=None):
 # ---------------------------------------------------------------- evidence
 
 def load_checks(root):
-    return util.read_json(util.state_dir(root) / "checks.json", {})
+    return util.read_json(Path(root) / util.STATE / "checks.json", {})
 
 
 def load_evidence(root):
-    path = util.state_dir(root) / "evidence.jsonl"
+    path = Path(root) / util.STATE / "evidence.jsonl"
     if not path.is_file():
         return []
     with open(path, encoding="utf-8") as handle:
@@ -261,9 +269,16 @@ def run_check(root, name, cmd, reqs=None, timeout=600, expect=None, metrics=None
     if unknown:
         raise ValueError(f"unknown requirement id(s) {unknown}; known: {sorted(known)}")
     cwd = Path(cwd or Path.cwd()).resolve()
-    evidence_id = len(load_evidence(root)) + 1
+    watch = list(watch) if watch is not None else previous.get("watch", [])
+    before_fingerprint = util.source_fingerprint(root, watch)
+    with util.lock(root):
+        counter = util.state_dir(root, "run") / "evidence-seq.json"
+        existing_max = max((entry["id"] for entry in load_evidence(root)), default=0)
+        evidence_id = max(util.read_json(counter, 0), existing_max) + 1
+        if record:
+            util.write_json(counter, evidence_id)
     log_path = (util.state_dir(root, "logs") / f"{evidence_id:03d}-{name}.log" if record
-                else util.state_dir(root, "run") / f"norecord-{name}.log")
+                else util.state_dir(root, "run") / f"norecord-{name}-{uuid.uuid4().hex}.log")
     shown = cmd if isinstance(cmd, str) else subprocess.list2cmdline(cmd)
     lines, kept = collections.deque(maxlen=max(tail, 60)), []
     started, exit_code, flags = time.time(), None, []
@@ -322,22 +337,31 @@ def run_check(root, name, cmd, reqs=None, timeout=600, expect=None, metrics=None
         else:
             flags.append(f"metric_missing:{metric}")
     skipped = sum(int(a or b) for a, b in SKIPPED.findall(output))
+    unittest_totals = re.findall(r"Ran (\d+) tests? in", output)
+    if skipped and ((unittest_totals and skipped >= int(unittest_totals[-1])) or
+                    (not unittest_totals and re.search(r"=+\s+\d+ skipped(?:, \d+ deselected)? in .*=+", output))):
+        flags.append("all_skipped")
     summary = [line.strip() for line in kept if SUMMARY.match(line.strip())][-2:]
-    ok = exit_code == 0 and not {"zero_tests", "expect_missing", "timeout"} & set(flags)
+    after_fingerprint = util.source_fingerprint(root, watch)
+    if before_fingerprint != after_fingerprint:
+        flags.append("source_changed_during_run")
+    ok = exit_code == 0 and not {"zero_tests", "all_skipped", "expect_missing", "timeout", "source_changed_during_run"} & set(flags)
     entry = {"id": evidence_id, "name": name, "time": util.stamp(), "end": time.time(), "cmd": cmd,
              "cwd": util.rel(cwd, root), "exit": exit_code, "ok": ok, "dur": round(duration, 2), "reqs": reqs,
              "log": util.rel(log_path, root), "flags": flags, "metrics": values, "skipped": skipped,
-             "summary": " / ".join(summary)}
+             "summary": " / ".join(summary), "fingerprint": after_fingerprint, "watch": watch}
     record_data = record
     if record_data:
-        with util.lock(root), open(util.state_dir(root) / "evidence.jsonl", "a", encoding="utf-8", newline="\n") as handle:
-            handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        with util.lock(root):
+            evidence_path = util.state_dir(root) / "evidence.jsonl"
+            previous_text = evidence_path.read_text(encoding="utf-8") if evidence_path.exists() else ""
+            util.write_text(evidence_path, previous_text + json.dumps(entry, ensure_ascii=False) + "\n")
+            if save:
+                checks = load_checks(root)
+                checks[name] = {"cmd": cmd, "cwd": entry["cwd"], "reqs": reqs, "timeout": timeout,
+                                "expect": expect, "metrics": metrics or {}, "watch": watch}
+                util.write_json(util.state_dir(root) / "checks.json", checks)
     record = entry
-    if save and record_data:
-        checks[name] = {"cmd": cmd, "cwd": record["cwd"], "reqs": reqs, "timeout": timeout,
-                        "expect": expect, "metrics": metrics or {},
-                        "watch": list(watch) if watch is not None else previous.get("watch", [])}
-        util.write_json(util.state_dir(root) / "checks.json", checks)
     if tail:
         for line in list(lines)[-(tail if ok else max(tail, 60)):]:
             print(line)
@@ -351,6 +375,7 @@ def run_check(root, name, cmd, reqs=None, timeout=600, expect=None, metrics=None
     return record
 
 
+@_locked
 def forget(root, name):
     checks = load_checks(root)
     if name not in checks:
@@ -391,13 +416,15 @@ def regress(root, only=None, tail=0, stale=False, record=True):
 
 # ---------------------------------------------------------------- state, status, gate
 
-def check_state(record, source_time):
+def check_state(record, source_time, fingerprint=None):
     if record is None:
         return "NONE"
     if not record["ok"]:
         return "FAIL"
     if "weak" in record["flags"]:
         return "WEAK"
+    if "fingerprint" in record and record["fingerprint"] != fingerprint:
+        return "STALE"
     if record["end"] < source_time - 1.0:
         return "STALE"
     return "PASS"
@@ -413,7 +440,13 @@ def compute(root):
         watch = tuple(check.get("watch") or ())
         if watch and watch not in scoped:
             scoped[watch] = util.source_mtime(root, watch)[0]
-    states = {name: check_state(latest.get(name), scoped.get(tuple(check.get("watch") or ()), source_time))
+    fingerprints = {}
+    for check in checks.values():
+        watch = tuple(check.get("watch") or ())
+        if watch not in fingerprints:
+            fingerprints[watch] = util.source_fingerprint(root, watch)
+    states = {name: check_state(latest.get(name), scoped.get(tuple(check.get("watch") or ()), source_time),
+                               fingerprints[tuple(check.get("watch") or ())])
               for name, check in checks.items()}
     proof = {}
     for item in data["items"]:
@@ -429,7 +462,7 @@ def compute(root):
 
 def time_left(root):
     """(minutes or None, advice). The advice encodes the time-box rules for the final."""
-    deadline = (util.read_json(util.state_dir(root) / "config.json", {}) or {}).get("deadline")
+    deadline = (util.read_json(Path(root) / util.STATE / "config.json", {}) or {}).get("deadline")
     if not deadline:
         return None, "no deadline set (hx init --deadline 16:00)"
     try:
@@ -442,7 +475,7 @@ def time_left(root):
     if minutes < 0:
         advice = "DEADLINE PASSED. Change nothing; submit the last hx-ok snapshot."
     elif minutes < 15:
-        advice = "STOP changing code. Submit the last hx-ok snapshot (`hx back --yes` if the tree is broken)."
+        advice = "Prioritize final verification and packaging. Inspect `hx back` before any user-authorized recovery."
     elif minutes < 45:
         advice = "Final pass only: `hx gate --final`, README/run instructions, deliverable packaging. No new features."
     elif minutes < 90:
@@ -564,6 +597,8 @@ def gate_eval(root):
         if item["kind"] == "REVIEW" and item["status"] == "open":
             (blocks if item["severity"] == "high" else warns).append(
                 f"{item['id']} review item open [{item['severity']}]: {util.short(item['text'], 60)}")
+        if item["kind"] == "REVIEW" and item["status"] == "handled" and item["severity"] == "high":
+            blocks.append(f"{item['id']} high review is handled but awaits independent verification and close")
         if item["kind"] == "QUESTION" and item["status"] == "open":
             warns.append(f"{item['id']} unanswered: {util.short(item['text'], 50)} -> "
                          + (f"assuming {util.short(item['assume'], 50)!r}; state the assumption in the deliverable"
@@ -596,7 +631,7 @@ def brief(root):
               for item in reqs] or ["- (아직 등록된 요구사항 없음)"]
     questions = [item for item in items if item["kind"] == "QUESTION" and item["status"] == "open"]
     if questions:
-        lines += ["", "## 확인이 필요한 질문 (답이 없으면 가정대로 진행)"]
+        lines += ["", "## 확인이 필요한 질문 (가정은 승인이 아니며, 중요한 답이 없으면 대기)"]
         lines += [f"- {item['id']} {item['text']}  → 가정: {item['assume'] or '(없음)'}" for item in questions]
     pending = [item for item in items if item["kind"] == "DECISION" and item["status"] == "pending"]
     if pending:
@@ -607,7 +642,11 @@ def brief(root):
             lines.append(f"- 권장: {item['recommend'] or '(없음)'}" + (f" — {item['why']}" if item["why"] else ""))
             if item["impact"]:
                 lines.append(f"- 영향: {item['impact']}")
-        example = ", ".join(f"{item['id']}=권장안" for item in pending[:2]) + (", 질문은 가정 유지" if questions else "")
+        example = ", ".join(f"{item['id']}=권장안" for item in pending[:2])
+        if any(item["assume"] for item in questions):
+            example += ", 명시된 가정은 각각 확인"
+        if any(not item["assume"] for item in questions):
+            example += ", 미답변 질문은 답변 대기"
         lines += ["", f"답하는 방법 예: {example}"]
     else:
         lines += ["", "정해야 할 사항 없음: 위 이해와 가정이 맞으면 그대로 진행합니다."]

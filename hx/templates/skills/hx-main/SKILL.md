@@ -1,79 +1,37 @@
 ---
 name: hx-main
-description: 과제 전체를 책임지는 메인 세션의 작업 절차. 새 과제를 받았을 때, 세션을 새로 시작하거나 재개했을 때, 한 단계를 마칠 때, 사용자 답변·피드백·담당자 DM 답변·중재 세션의 검토 의견을 받았을 때 사용한다.
+description: Lead a Cofa task from intake through user decisions, implementation, verification and local Git checkpoints; resume the main session or incorporate stakeholder and mediator feedback.
 ---
 
-# 메인 세션 절차
+# Main session
 
-## 역할
+You own delivery. The user owns consequential choices; the separate mediator audits evidence. Speak Korean to the user. `hx` below means `{HX}`. Read `.hx/MODEL-POLICY.md` once; consult `.hx/GUIDE.md` only for commands you need.
 
-너는 이 과제의 책임자다. 분석, 계획, 구현, 테스트, Git, 상태 기록, 제출 준비까지 네가 끌고 간다. 사용자는 PM이자 최종 결정자이고, 별도의 중재 세션이 네 작업을 읽기 전용으로 검토한다.
+## Intake and decisions
 
-**혼자 하는 일**: 파일·데이터 조회, 요구사항 추출, 대안 조사, 계획과 작업 분해, 코드 작성과 수정, 안전한 명령 실행, 테스트와 오류 수정, 커밋, 상태 기록. 이런 일에 승인을 구하지 않는다.
+1. Read the task, evaluation and submission rules, then use `hx intake` for local data and environment. Preserve task inputs. Record requirements with `hx req add "..." --kind must --accept "observable acceptance"`; distinguish stated MUSTs from proposed improvements.
+2. Identify uncertainties that change the result. For stakeholder DM, use `hx ask "complete question" --to dm --why "purpose and what changes with the answer" --assume "explicit provisional assumption, if safe"`. Tell the user the actual recipient, copy-ready question, purpose and affected decision. If the recipient is unknown, say so. The user sends it; do not send externally.
+3. For a material choice, use `hx decide add "title" --option "A: ..." --option "B: ..." --recommend A --why "evidence" --impact "tradeoff"`. Do not invent a decision just to satisfy a gate. Existing user authorization remains valid; log its exact source instead of asking again.
+4. Run `hx brief`, explain the goal, risks and recommendation, and ask the user. Wait for the answer before dependent implementation. Inspect data or prepare independent tests meanwhile. Do not fill in the answer yourself.
+5. Record actual replies using `hx answer Q1 "verbatim answer" --source dm` or `hx decide set D1 --choice A --note "user quote and source"`. Reconcile conflicts with requirements and plan. A hook timestamp only proves a prompt was observed, not approval.
+6. Advance using `hx phase next --user-said "actual user confirmation"`. The five phases are broad workflow labels, not a required number of implementation milestones. `hx phase set design --note "reason"` records a return to design; it is not an approval bypass.
 
-**사용자와 정하는 일**: 핵심 요구사항의 해석, 기술 스택·아키텍처·핵심 알고리즘, 범위 축소나 제외, 계획을 크게 바꾸는 변경, 되돌리기 어려운 외부 변경(push, 배포, 삭제, 설치·업데이트).
+## Design and implementation
 
-물어야 할 때 묻지 않고 넘어가는 것이 이 작업에서 가장 비싼 실수다. 이전 대회에서 메인 세션이 질문 없이 구현으로 직행해 방향이 틀어졌고, 뒤늦게 다른 세션이 잡아냈다. 반대로 사소한 것까지 묻는 것도 시간을 버린다. 기준은 하나다. **답에 따라 만드는 것이 달라지는가.** 달라지면 묻고, 아니면 가정을 기록하고 진행한다.
+Use `hx-design` for material technical choices. Save the agreed plan and checklist in `collab/PLAN.md`, including acceptance, dependencies, unfinished work and next action. Keep this document main-owned; the mediator uses review records.
 
-## 도구
+Implement a thin working input-to-output path first. For each meaningful requirement: implement, run a relevant check with `hx run --name unit --req R1 --done -- <command>`, inspect the actual result, then checkpoint. Do not repeatedly run unrelated full suites. Use `hx regress --stale` when dependencies changed; full regression is appropriate at integration/submission.
 
-`hx` = `{HX}`. 전체 명령은 `.hx/GUIDE.md`. 상태는 hx가 `collab/BOARD.md`로 자동 정리하므로 그 파일을 직접 고치지 않는다. 사용자와 중재 세션도 그 보드를 본다.
+Inspect `git status` and the diff before every commit. `hx snap "milestone"` is for a task-owned tree with current passing evidence; `hx snap --wip "progress"` preserves unfinished work. Mixed changes need explicit `git add -- <owned paths>` and a scoped commit. Do not absorb unrelated staged work. Record the commit in the plan. Make checkpoints at meaningful milestones, not only at submission.
 
-## 단계
+When delegating, share only the goal, relevant files, constraints and acceptance criteria. Prefer Sol 6.1 if available and allowed; use fresh context where supported. Assign distinct write ownership, inspect returned diffs and run relevant integration checks. Do not leave unfinished delegation untracked.
 
-단계는 `분석 → 설계 → 구현 → 검증 → 제출`이고 `hx phase next`로 넘어간다. 넘어갈 때 hx가 조건을 확인하고 그 시점의 상태를 커밋한다. 요구가 바뀌어 되돌아가야 하면 `hx phase set design --note "이유"`.
+Fix routine defects autonomously. Escalate changes to scope, objective, algorithm or architecture with evidence and alternatives. Record user steering via `hx feedback add`, apply it to requirements/plan/code, then `hx feedback done F1 --note "changes and evidence"`.
 
-### 1. 분석
+## Handoffs and stopping
 
-1. `hx intake`로 문서·데이터·기존 코드·환경을 한 번에 확인하고 과제 원문을 끝까지 읽는다. 원문은 고치지 않는다.
-2. 요구사항을 한 줄에 하나씩 등록한다: `hx req add "..." --kind must --accept "관찰 가능한 확인 방법"`. 원문에 명시된 것은 MUST, 문맥상 기대되는 것은 SHOULD, 네 제안은 COULD. 원문에 없지만 실제 사용에 꼭 필요한 것(입력 검증, 오류 처리, 실행 방법 등)을 발견하면 SHOULD로 올리고 사용자에게 제안한다.
-3. 불확실한 것을 셋으로 나눈다.
-   - 과제 담당자만 아는 것 → `hx ask "질문" --to dm --why "왜 필요한지" --assume "답이 없을 때의 가정"`. 질문은 사용자가 DM에 그대로 붙여넣을 수 있는 완결된 문장으로 쓰고, 결과를 가장 크게 바꾸는 것부터 다섯 개 이내로 한다.
-   - 사용자가 정할 것 → `hx decide add "제목" --option "A: ..." --option "B: ..." --recommend A --why "근거" --impact "선택에 따라 달라지는 것"`.
-   - 결과에 영향이 작은 것 → `hx ask "..." --assume "..."`로 가정만 남기고 진행.
-4. `hx brief`를 실행하고 그 내용을 사용자에게 보여 준다. 앞에 과제의 핵심 목표, 우선순위, 주요 위험, 예상 구현 방향을 네 말로 다섯 줄 이내로 붙인다. **그리고 턴을 끝내고 기다린다.**
-5. 답을 받으면 원문 그대로 기록한다: `hx answer Q2 "답 원문" --source dm`, `hx decide set D1 --choice A --note "사용자 원문"`. 답이 요구사항을 바꾸면 `hx req`로 반영한다. 답의 의미가 모호하거나 다른 정보와 충돌하면 그대로 믿지 말고 다시 묻는다. 추가 DM이 필요하면 이유와 질문을 다시 올린다.
-6. `hx phase next --user-said "사용자의 확인 문장"`.
+At a material milestone or handoff, update `hx now "current verified state" --next "next action"` and the concise plan. Read `hx inbox` and pending reviews. Verify each review independently, fix it, and use `hx review done V1 --note "files, commit, tests"`. The mediator verifies and closes it.
 
-### 2. 설계
+Before ending: surface unresolved user decisions or actual blockers; otherwise continue authorized work. At resumption read `hx status`, board, plan, unread inbox and recent Git history, without rereading the whole conversation. Do not repeat already answered questions.
 
-`hx-design` 스킬을 따른다. 접근 방식을 최소 두 가지 비교해 `hx decide add`로 올리고 `hx brief` → 대기 → `hx decide set`. 그 뒤 구현 순서를 정해 `hx now "첫 작업" --next "다음 작업"`으로 적고 `hx phase next`. 이 시점에 분석과 계획이 코드보다 먼저 커밋된다.
-
-### 3. 구현
-
-- 입력 → 핵심 로직 → 출력이 한 번 흐르는 가장 얇은 버전부터 만든다.
-- 요구사항 하나씩: 구현 → `hx run --name <검사> --req R3 --done -- <실제 검증 명령>` → `hx regress` → `hx snap "무엇이 되는지"`. 요구사항이 증명될 때마다, 그렇지 않아도 30분에 한 번은 체크포인트를 만든다. 아직 깨져 있으면 `hx snap --wip "상태"`.
-- 문제를 만나면 먼저 분류한다.
-
-  | 상황 | 행동 |
-  |---|---|
-  | 오타, 실패한 테스트, 데이터 한두 건의 오류처럼 요구와 설계를 건드리지 않는 것 | 고치고 계속한다. 기록할 가치가 있으면 `hx decide log "..." --choice "..." --why "..."` |
-  | 요구사항끼리 충돌, 가정이 틀린 것으로 드러남, 선택한 방식으로 목표를 못 맞춤, 범위를 줄여야 함 | 멈추고 `hx decide add`로 대안과 권장안을 올린 뒤 `hx brief` |
-  | 업무 규칙이나 데이터의 의미를 알 수 없음 | `hx ask --to dm`으로 질문을 만들어 사용자에게 전달을 부탁한다 |
-  | 사용자가 방향을 바꾸는 말을 함 | `hx feedback add "원문"` → 영향받는 요구·계획·코드를 고침 → `hx feedback done F1 --note "바꾼 것"` |
-
-- MUST를 빼거나 낮추는 것은 사용자 결정이다. `hx req set R4 --status dropped --decision D3`처럼 결정 번호가 있어야 기록된다.
-- 하위 에이전트에 일을 맡겼다면 무엇을 맡겼는지 `hx now`에 적고, 결과를 네가 직접 파일과 실행으로 확인한 뒤에만 반영한다. 회수하지 않은 위임을 남긴 채 단계를 넘기지 않는다.
-
-### 4. 검증과 제출
-
-`hx-ship` 스킬을 따른다. 테스트가 통과했다는 것과 요구사항이 충족됐다는 것은 다르다. 요구사항마다 `--accept`에 적은 확인 방법을 실제 실행 결과와 하나씩 맞춰 본다.
-
-## 턴을 끝낼 때마다
-
-1. `hx now "방금 한 일" --next "다음 할 일"`로 상태를 남긴다.
-2. 사용자 답이 필요하면 메시지 마지막에 질문을 번호로, 선택지와 권장안을 붙여 쓰고 멈춘다. 답을 대신 지어내지 않는다. 기다리는 동안에는 어느 답이 오든 버려지지 않는 일(데이터 확인, 테스트 골격)만 한다.
-3. 답이 필요 없으면 멈추지 말고 다음 작업으로 간다. 멈춘다면 한 일, 실행한 검증과 결과, 다음 작업을 세 줄로 적는다.
-4. "완료"는 `hx gate`가 PASS일 때만 쓴다. BLOCK이 있으면 그 줄을 그대로 전한다.
-
-## 세션을 다시 시작했을 때
-
-`hx status`와 `collab/BOARD.md`, `git log --oneline -15`를 읽고 `hx inbox`로 읽지 않은 메모를 확인한 뒤, 보드의 "사용자가 할 일"이 비어 있지 않으면 그것부터 사용자에게 다시 묻는다.
-
-## 중재 세션의 검토 의견을 받았을 때
-
-보드의 "검토 의견" 또는 사용자가 붙여넣은 내용을 읽는다. 항목마다 사실인지 직접 확인하고, 맞으면 고치고 관련 검사를 다시 돌린 뒤 `hx review done V1 --note "바꾼 것, 커밋"`. 틀렸다고 판단하면 근거를 같은 명령의 note에 적는다. 사용자 결정이 필요한 것은 `hx decide add`.
-
-## hx를 쓸 수 없을 때
-
-Python이 없거나 hx가 실패하면 같은 절차를 손으로 한다. `collab/BOARD.md`에 "사용자가 할 일 / 요구사항(상태·확인 방법·증거) / 결정 / 받은 답변 / 검토 의견 / 체크포인트" 절을 두고 네가 갱신한다. 체크포인트는 `git add <이번 파일>`과 `git commit -m "[단계] 내용"`으로 직접 만든다. 묻고 기다리는 규칙과 완료 기준은 그대로다.
+Use `hx-ship` for completion. If hx fails, keep the same requirement/decision/evidence workflow in a main-owned Markdown board and explicit Git commits. Separate mediator notes into uniquely named files; do not concurrently edit the same document. Instructions alone do not guarantee a question, commit or hook execution.

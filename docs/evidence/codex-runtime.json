@@ -1,0 +1,63 @@
+{
+  "client_date": "2026-11-10",
+  "version": "0.166.0",
+  "agents_prompt_injection": true,
+  "skills": [
+    {
+      "name": "hx-design",
+      "enabled": true
+    },
+    {
+      "name": "hx-main",
+      "enabled": true
+    },
+    {
+      "name": "hx-mediator",
+      "enabled": true
+    },
+    {
+      "name": "hx-ship",
+      "enabled": true
+    }
+  ],
+  "hooks": [
+    {
+      "eventName": "preToolUse",
+      "matcher": "Bash",
+      "enabled": true,
+      "trustStatus": "untrusted"
+    },
+    {
+      "eventName": "preToolUse",
+      "matcher": "apply_patch",
+      "enabled": true,
+      "trustStatus": "untrusted"
+    },
+    {
+      "eventName": "postToolUse",
+      "matcher": "apply_patch",
+      "enabled": true,
+      "trustStatus": "untrusted"
+    },
+    {
+      "eventName": "sessionStart",
+      "matcher": null,
+      "enabled": true,
+      "trustStatus": "untrusted"
+    },
+    {
+      "eventName": "userPromptSubmit",
+      "matcher": null,
+      "enabled": true,
+      "trustStatus": "untrusted"
+    },
+    {
+      "eventName": "stop",
+      "matcher": null,
+      "enabled": true,
+      "trustStatus": "untrusted"
+    }
+  ],
+  "native_hook_execution": "unverified: untrusted, no bypass or global config changes",
+  "source": "codex debug prompt-input; app-server skills/list and hooks/list"
+}
