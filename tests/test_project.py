@@ -43,6 +43,11 @@ class Init(Base):
         guide = (self.dir / ".hx" / "GUIDE.md").read_text(encoding="utf-8")
         self.assertNotIn("{HX}", guide)
         self.assertIn(KIT.as_posix(), guide)
+        self.assertNotIn('--watch "src/*,data/*', guide)                   # broad patterns also watch outputs
+        self.assertIn("임의로 채우지 않고 사용자에게", guide)
+        main = (self.dir / ".agents" / "skills" / "hx-main" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("Never include files the command writes", main)
+        self.assertIn("## Personal and submission information", main)
         self.assertTrue((self.dir / ".hx" / "DOMAIN.md").is_file())
         self.assertIn("# 작업 보드", (self.dir / "collab" / "BOARD.md").read_text(encoding="utf-8"))
         self.assertTrue((self.dir / "collab" / "INBOX.md").is_file())

@@ -270,7 +270,7 @@ def run_check(root, name, cmd, reqs=None, timeout=600, expect=None, metrics=None
         raise ValueError(f"unknown requirement id(s) {unknown}; known: {sorted(known)}")
     cwd = Path(cwd or Path.cwd()).resolve()
     watch = list(watch) if watch is not None else previous.get("watch", [])
-    before_fingerprint = util.source_fingerprint(root, watch)
+    before_hashes = util.source_hashes(root, watch)
     with util.lock(root):
         counter = util.state_dir(root, "run") / "evidence-seq.json"
         existing_max = max((entry["id"] for entry in load_evidence(root)), default=0)
@@ -342,8 +342,11 @@ def run_check(root, name, cmd, reqs=None, timeout=600, expect=None, metrics=None
                     (not unittest_totals and re.search(r"=+\s+\d+ skipped(?:, \d+ deselected)? in .*=+", output))):
         flags.append("all_skipped")
     summary = [line.strip() for line in kept if SUMMARY.match(line.strip())][-2:]
-    after_fingerprint = util.source_fingerprint(root, watch)
-    if before_fingerprint != after_fingerprint:
+    after_hashes = util.source_hashes(root, watch)
+    after_fingerprint = util.fingerprint_of(after_hashes)
+    changed = sorted(path for path in set(before_hashes) | set(after_hashes)
+                     if before_hashes.get(path) != after_hashes.get(path))
+    if changed:
         flags.append("source_changed_during_run")
     ok = exit_code == 0 and not {"zero_tests", "all_skipped", "expect_missing", "timeout", "source_changed_during_run"} & set(flags)
     entry = {"id": evidence_id, "name": name, "time": util.stamp(), "end": time.time(), "cmd": cmd,
@@ -372,6 +375,11 @@ def run_check(root, name, cmd, reqs=None, timeout=600, expect=None, metrics=None
         print("  -> the command ran ZERO tests; exit code 0 proves nothing (wrong path or discovery pattern?)")
     if "weak" in flags:
         print("  -> trivial command: it does not exercise the product and will not count as proof")
+    if changed:
+        print(f"  -> watched files changed during the run: {', '.join(changed[:5])}"
+              + (f" (+{len(changed) - 5} more)" if len(changed) > 5 else ""))
+        print("     if these are outputs the command writes, rerun with --watch limited to real inputs and code"
+              " (e.g. --watch \"src/*,tests/*,data/input.csv\"); if they are inputs, the result is not proof")
     return record
 
 

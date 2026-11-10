@@ -165,6 +165,25 @@ class EvidenceAudit(TempCase):
         self.assertFalse(result["ok"])
         self.assertIn("source_changed_during_run", result["flags"])
 
+    def test_outputs_outside_the_watch_scope_pass_and_watched_inputs_fail(self):
+        self.write("make.py", "from pathlib import Path\nrows = Path('data/input.csv').read_text()\n"
+                   "Path('data/result.csv').write_text(rows + 'total,1\\n')\n"
+                   "Path('result.json').write_text('{\"n\": 1}')\nprint('ok')\n")
+        self.write("data/input.csv", "id,value\n1,10\n")
+        command = [sys.executable, "make.py"]
+        for _ in range(2):  # first run creates the outputs, the second overwrites them
+            result = self.run_check(name="make", command=command, watch=["make.py", "data/input.csv"])
+            self.assertTrue(result["ok"], result["flags"])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            result = ledger.run_check(self.dir, "mutate", [sys.executable, "-c",
+                "from pathlib import Path; Path('data/input.csv').write_text('id,value\\n1,99\\n')"],
+                cwd=self.dir, tail=0, watch=["make.py", "data/input.csv"])
+        self.assertFalse(result["ok"])
+        self.assertIn("source_changed_during_run", result["flags"])
+        self.assertIn("watched files changed during the run: data/input.csv", out.getvalue())
+        self.assertIn("--watch limited to real inputs and code", out.getvalue())
+
     def test_unanswered_question_without_an_assumption_blocks_completion(self):
         self.prepare()
         ledger.add_question(self.dir, "What is the objective?", to="dm")

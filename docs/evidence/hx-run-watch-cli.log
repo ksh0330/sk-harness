@@ -1,0 +1,24 @@
+# Isolated scratch task (outside this repository): data/input.csv, make.py writes data/result.csv and result.json
+# hx = python -B <REPO>/hx ; recorded 2026-11-11 (KST), Windows, Python 3.12
+
+$ hx init
+$ hx run --name make --tail 0 -- python make.py
+HX-RUN #1 make: FAIL exit=0 dur=0.2s flags=source_changed_during_run reqs=- log=.hx/logs/001-make.log
+  -> watched files changed during the run: data/result.csv, result.json
+     if these are outputs the command writes, rerun with --watch limited to real inputs and code (e.g. --watch "src/*,tests/*,data/input.csv"); if they are inputs, the result is not proof
+exit=1
+
+$ hx run --name make2 --tail 0 --watch "make.py,data/*" -- python make.py
+HX-RUN #2 make2: PASS exit=0 dur=0.2s reqs=- log=.hx/logs/002-make2.log
+# PASS only because run #1 already wrote byte-identical outputs; a first run or changed output would fail. Not recommended.
+
+$ hx run --name make3 --tail 0 --watch "make.py,data/input.csv" -- python make.py
+HX-RUN #3 make3: PASS exit=0 dur=0.2s reqs=- log=.hx/logs/003-make3.log
+$ hx run --name make3 --tail 0 -- python make.py        # saved scoped watch reused, outputs overwritten
+HX-RUN #4 make3: PASS exit=0 dur=0.2s reqs=- log=.hx/logs/004-make3.log
+
+$ hx run --name mutate --tail 0 --watch "make.py,data/input.csv" --sh "python -c \"open('data/input.csv','w').write('id,value\n1,99\n')\""
+HX-RUN #5 mutate: FAIL exit=0 dur=0.2s flags=source_changed_during_run reqs=- log=.hx/logs/005-mutate.log
+  -> watched files changed during the run: data/input.csv
+     if these are outputs the command writes, rerun with --watch limited to real inputs and code (e.g. --watch "src/*,tests/*,data/input.csv"); if they are inputs, the result is not proof
+exit=1

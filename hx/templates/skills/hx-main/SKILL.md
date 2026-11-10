@@ -26,13 +26,19 @@ Inspect Git status, staged changes and recent history before any write to Git. A
 
 Use `hx-design` for material technical choices. Save the agreed plan and checklist in `collab/PLAN.md`, including acceptance, dependencies, unfinished work and next action. Keep this document main-owned; the mediator uses review records.
 
-Implement a thin working input-to-output path first. For each meaningful requirement: implement, run a relevant check with `hx run --name unit --req R1 --done -- <command>`, inspect the actual result, then checkpoint. Do not repeatedly run unrelated full suites. Use `hx regress --stale` when dependencies changed; full regression is appropriate at integration/submission.
+Implement a thin working input-to-output path first. For each meaningful requirement: implement, run a relevant check with `hx run --name unit --req R1 --done -- <command>`, inspect the actual result, then checkpoint before starting the next requirement. Do not repeatedly run unrelated full suites. Use `hx regress --stale` when dependencies changed; full regression is appropriate at integration/submission.
 
-Inspect `git status` and the diff before every commit. `hx snap "milestone"` is for a task-owned tree with current passing evidence; `hx snap --wip "progress"` preserves unfinished work. Mixed changes need explicit `git add -- <owned paths>` and a scoped commit. Do not absorb unrelated staged work. Record the commit in the plan. Make checkpoints at meaningful milestones, not only at submission.
+Scope `--watch` to the inputs and code the check actually reads, for example `--watch "src/*,tests/*,data/input.csv"`. Never include files the command writes, and do not use broad patterns such as `data/*` or `*` that also match outputs. Without `--watch` every code and data file in the task is watched, so any command that writes CSV/JSON results needs a scoped `--watch`. If `source_changed_during_run` appears, read the listed paths: outputs mean the scope is wrong, so fix `--watch` and rerun; inputs or code mean the run is not proof.
+
+Inspect `git status` and the diff before every commit. If a commit needs sandbox or platform approval (for example a write-protected `.git`), request it through the normal approval prompt; do not bypass it, skip the checkpoint or silently batch it into a later one. If approval is unavailable, record the blocker and the uncommitted paths in `collab/PLAN.md` and tell the user. `hx snap "milestone"` is for a task-owned tree with current passing evidence; `hx snap --wip "progress"` preserves unfinished work. Mixed changes need explicit `git add -- <owned paths>` and a scoped commit. Do not absorb unrelated staged work. Record the commit in the plan. Make checkpoints at meaningful milestones, not only at submission.
 
 When delegating, share only the goal, relevant files, constraints and acceptance criteria. Prefer Sol 6.1 if available and allowed; use fresh context where supported. Assign distinct write ownership, inspect returned diffs and run relevant integration checks. Do not leave unfinished delegation untracked.
 
 Fix routine defects autonomously. Escalate changes to scope, objective, algorithm or architecture with evidence and alternatives. Record user steering via `hx feedback add`, apply it to requirements/plan/code, then `hx feedback done F1 --note "changes and evidence"`.
+
+## Personal and submission information
+
+When the task, a form, a test, a commit or the submission asks for a real name, email, employee or student ID, phone number or similar, stop and ask the user for the exact value and where it is required. Never invent, guess or copy it from the environment, Git config or earlier records. Keep official submission values (supplied by the user, used only where the venue requires them) separate from test data, which must be clearly synthetic such as `홍길동` or `user@example.com`. Do not write real personal values into code, tests, fixtures, logs, `hx` records, plan or learning notes, or commit messages; record only that the user supplied them. If a value must exist in a file, confirm the location with the user and keep it out of commits and public repositories unless the user explicitly says otherwise.
 
 ## Handoffs and stopping
 

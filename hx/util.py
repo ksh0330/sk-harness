@@ -244,7 +244,20 @@ def source_fingerprint(root, patterns=None):
     Explicit watch patterns define a check's dependency scope. Generated logs and
     state are excluded. Errors are propagated rather than certifying a partial scan.
     """
+    return fingerprint_of(source_hashes(root, patterns))
+
+
+def fingerprint_of(hashes):
     digest = hashlib.sha256()
+    for relative, content in hashes.items():
+        digest.update(relative.encode("utf-8") + b"\0")
+        digest.update(content)
+    return digest.hexdigest()
+
+
+def source_hashes(root, patterns=None):
+    """Per-file content digests in walk order; source_fingerprint combines them."""
+    hashes = {}
     for folder, dirs, files in os.walk(root):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
         for name in sorted(files):
@@ -255,10 +268,9 @@ def source_fingerprint(root, patterns=None):
                     continue
             elif path.suffix.lower() not in CODE_EXT | DATA_EXT:
                 continue
-            digest.update(relative.encode("utf-8") + b"\0")
             content_hash = hashlib.sha256()
             with path.open("rb") as handle:
                 for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                     content_hash.update(chunk)
-            digest.update(content_hash.digest())
-    return digest.hexdigest()
+            hashes[relative] = content_hash.digest()
+    return hashes
