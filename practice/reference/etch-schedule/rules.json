@@ -1,0 +1,24 @@
+{
+  "_note": "출력 파일을 입력과 대조하는 규칙. 과제 원문의 규칙 번호를 name에 적었다.",
+  "tables": {
+    "lots": "data/lots.csv",
+    "eqp": "data/equipment.csv",
+    "plan": "out/schedule.csv",
+    "rejected": "out/rejected.csv",
+    "accounted": ["out/schedule.csv", "out/rejected.csv"]
+  },
+  "rules": [
+    {"name": "출력 컬럼", "rule": "required_columns", "table": "plan", "columns": ["lot_id", "eqp_id", "start_min", "end_min"]},
+    {"name": "출력 값 누락 없음", "rule": "not_null", "table": "plan", "columns": ["lot_id", "eqp_id", "start_min", "end_min"]},
+    {"name": "규칙1 모든 lot 정확히 한 번", "rule": "same_keys", "table": "accounted", "columns": ["lot_id"], "ref_table": "lots"},
+    {"name": "규칙2 설비가 설비 목록에 있음", "rule": "fk", "table": "plan", "columns": ["eqp_id"], "ref_table": "eqp"},
+    {"name": "규칙2 eligible 설비에만 배정", "rule": "expr", "table": "plan",
+     "expr": "eqp_id in [name.strip().upper() for name in ref('lots', 'lot_id', lot_id, 'eligible').split('|')]"},
+    {"name": "규칙3 설비별 시간 겹침 없음", "rule": "no_overlap", "table": "plan", "group": ["eqp_id"], "start": "start_min", "end": "end_min"},
+    {"name": "규칙4 시작 >= 설비 가용 시각", "rule": "expr", "table": "plan",
+     "expr": "start_min >= ref('eqp', 'eqp_id', eqp_id, 'available_from_min')"},
+    {"name": "규칙4 종료 = 시작 + 처리 시간", "rule": "expr", "table": "plan",
+     "expr": "end_min - start_min == ref('lots', 'lot_id', lot_id, 'proc_min')"},
+    {"name": "규칙5 제외 이유 기재", "rule": "not_null", "table": "rejected", "columns": ["lot_id", "reason"]}
+  ]
+}

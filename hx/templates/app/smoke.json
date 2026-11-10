@@ -1,0 +1,13 @@
+{
+  "serve": ["python", "__APP__/server.py", "--port", "8765"],
+  "base": "http://127.0.0.1:8765",
+  "wait": "/api/health",
+  "timeout": 20,
+  "checks": [
+    {"path": "/api/health", "status": 200, "json_equals": {"ok": true}},
+    {"path": "/api/items", "status": 200, "json_has": ["count", "items"]},
+    {"method": "POST", "path": "/api/items", "json": {"name": "smoke", "value": 1}, "status": 201, "json_has": ["id"]},
+    {"method": "POST", "path": "/api/items", "json": {"name": ""}, "status": 400, "json_has": ["error"]},
+    {"path": "/", "status": 200, "contains": ["<title>", "/api/items"]}
+  ]
+}

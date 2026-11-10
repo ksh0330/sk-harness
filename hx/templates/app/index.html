@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__APP__</title>
+<style>
+  :root { --ink: #1c2530; --muted: #5f6b7a; --line: #d9dee5; --accent: #1f6feb; --bad: #b42318; --bg: #f6f7f9; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, "Malgun Gothic", sans-serif; color: var(--ink); background: var(--bg); }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 20px; margin: 0 0 16px; }
+  section { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  h2 { font-size: 15px; margin: 0 0 12px; color: var(--muted); font-weight: 600; }
+  form { display: flex; gap: 8px; flex-wrap: wrap; }
+  input, button { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; }
+  input { flex: 1 1 160px; min-width: 0; }
+  button { background: var(--accent); color: #fff; border-color: var(--accent); cursor: pointer; }
+  button:disabled { opacity: .6; cursor: default; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  #message { min-height: 22px; margin-top: 8px; color: var(--bad); }
+  #chart svg { width: 100%; height: auto; display: block; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>__APP__</h1>
+  <section>
+    <h2>항목 추가</h2>
+    <form id="form">
+      <input id="name" placeholder="이름" autocomplete="off" required>
+      <input id="value" placeholder="값 (숫자)" inputmode="decimal" required>
+      <button id="submit">추가</button>
+    </form>
+    <div id="message" role="alert"></div>
+  </section>
+  <section>
+    <h2>값 분포</h2>
+    <div id="chart"></div>
+  </section>
+  <section>
+    <h2>목록</h2>
+    <div style="overflow-x:auto">
+      <table><thead><tr><th>ID</th><th>이름</th><th class="num">값</th></tr></thead><tbody id="rows"></tbody></table>
+    </div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (text) => String(text).replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+
+// Every call goes through here so a dead backend or an error reply is shown, never swallowed.
+async function api(path, options) {
+  let reply;
+  try {
+    reply = await fetch(path, options);
+  } catch (error) {
+    throw new Error("서버에 연결할 수 없습니다 (" + path + ")");
+  }
+  const text = await reply.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch (error) { /* non-JSON reply */ }
+  if (!reply.ok) throw new Error((data && data.error) || ("HTTP " + reply.status));
+  return data;
+}
+
+// Dependency-free bar chart (no CDN): works with the network unplugged.
+function barChart(items) {
+  if (!items.length) return '<p class="empty">데이터가 없습니다.</p>';
+  const width = 640, rowHeight = 26, left = 150, right = 70;
+  const top = Math.max(...items.map((item) => Math.abs(item.value)), 1e-9);
+  const rows = items.map((item, index) => {
+    const size = Math.abs(item.value) / top * (width - left - right);
+    const y = index * rowHeight + 4;
+    return `<text x="${left - 8}" y="${y + 13}" text-anchor="end" font-size="12" fill="#5f6b7a">${esc(item.name).slice(0, 22)}</text>` +
+           `<rect x="${left}" y="${y}" width="${size.toFixed(1)}" height="18" rx="3" fill="${item.value < 0 ? "#b42318" : "#1f6feb"}"></rect>` +
+           `<text x="${left + size + 6}" y="${y + 13}" font-size="12" fill="#1c2530">${esc(item.value)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${width} ${items.length * rowHeight + 8}" role="img" aria-label="값 막대 그래프">${rows.join("")}</svg>`;
+}
+
+async function refresh() {
+  const data = await api("/api/items");
+  $("rows").innerHTML = data.items.length
+    ? data.items.map((item) => `<tr><td>${esc(item.id)}</td><td>${esc(item.name)}</td><td class="num">${esc(item.value)}</td></tr>`).join("")
+    : '<tr><td colspan="3" class="empty">데이터가 없습니다.</td></tr>';
+  $("chart").innerHTML = barChart(data.items);
+}
+
+$("form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  $("message").textContent = "";
+  $("submit").disabled = true;
+  try {
+    await api("/api/items", {method: "POST", headers: {"Content-Type": "application/json"},
+                             body: JSON.stringify({name: $("name").value, value: $("value").value})});
+    $("form").reset();
+    await refresh();
+  } catch (error) {
+    $("message").textContent = error.message;
+  } finally {
+    $("submit").disabled = false;
+  }
+});
+
+refresh().catch((error) => { $("message").textContent = error.message; });
+</script>
+</body>
+</html>

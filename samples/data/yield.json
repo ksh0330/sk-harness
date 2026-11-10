@@ -1,0 +1,544 @@
+{
+ "generated": "2026-11-05",
+ "wafers": [
+  {
+   "lot_id": "LOT0001",
+   "wafer_no": 1,
+   "yield_pct": 99.5,
+   "bin": {
+    "good": 597,
+    "fail": 3
+   }
+  },
+  {
+   "lot_id": "LOT0001",
+   "wafer_no": 2,
+   "yield_pct": 89.72,
+   "bin": {
+    "good": 538,
+    "fail": 62
+   }
+  },
+  {
+   "lot_id": "LOT0001",
+   "wafer_no": 3,
+   "yield_pct": 94.48,
+   "bin": {
+    "good": 566,
+    "fail": 34
+   }
+  },
+  {
+   "lot_id": "LOT0001",
+   "wafer_no": 4,
+   "yield_pct": 96.51,
+   "bin": {
+    "good": 579,
+    "fail": 21
+   }
+  },
+  {
+   "lot_id": "LOT0001",
+   "wafer_no": 5,
+   "yield_pct": 85.39,
+   "bin": {
+    "good": 512,
+    "fail": 88
+   }
+  },
+  {
+   "lot_id": "LOT0002",
+   "wafer_no": 1,
+   "yield_pct": 0.9073,
+   "bin": {
+    "good": 544,
+    "fail": 56
+   }
+  },
+  {
+   "lot_id": "LOT0002",
+   "wafer_no": 2,
+   "yield_pct": 0.8755,
+   "bin": {
+    "good": 525,
+    "fail": 75
+   }
+  },
+  {
+   "lot_id": "LOT0002",
+   "wafer_no": 3,
+   "yield_pct": 0.9431,
+   "bin": {
+    "good": 565,
+    "fail": 35
+   }
+  },
+  {
+   "lot_id": "LOT0002",
+   "wafer_no": 4,
+   "yield_pct": 0.9482,
+   "bin": {
+    "good": 568,
+    "fail": 32
+   }
+  },
+  {
+   "lot_id": "LOT0002",
+   "wafer_no": 5,
+   "yield_pct": 0.9194,
+   "bin": {
+    "good": 551,
+    "fail": 49
+   }
+  },
+  {
+   "lot_id": "LOT0003",
+   "wafer_no": 1,
+   "yield_pct": 96.76,
+   "bin": {
+    "good": 580,
+    "fail": 20
+   }
+  },
+  {
+   "lot_id": "LOT0003",
+   "wafer_no": 2,
+   "yield_pct": 92.92,
+   "bin": {
+    "good": 557,
+    "fail": 43
+   }
+  },
+  {
+   "lot_id": "LOT0003",
+   "wafer_no": 3,
+   "yield_pct": 90.96,
+   "bin": {
+    "good": 545,
+    "fail": 55
+   }
+  },
+  {
+   "lot_id": "LOT0003",
+   "wafer_no": 4,
+   "yield_pct": 93.99,
+   "bin": {
+    "good": 563,
+    "fail": 37
+   }
+  },
+  {
+   "lot_id": "LOT0003",
+   "wafer_no": 5,
+   "yield_pct": 94.06,
+   "bin": {
+    "good": 564,
+    "fail": 36
+   }
+  },
+  {
+   "lot_id": "LOT0004",
+   "wafer_no": 1,
+   "yield_pct": 86.98,
+   "bin": {
+    "good": 521,
+    "fail": 79
+   }
+  },
+  {
+   "lot_id": "LOT0004",
+   "wafer_no": 2,
+   "yield_pct": 89.62,
+   "bin": {
+    "good": 537,
+    "fail": 63
+   }
+  },
+  {
+   "lot_id": "LOT0004",
+   "wafer_no": 3,
+   "bin": {
+    "good": 537,
+    "fail": 63
+   }
+  },
+  {
+   "lot_id": "LOT0004",
+   "wafer_no": 4,
+   "yield_pct": 93.84,
+   "bin": {
+    "good": 563,
+    "fail": 37
+   }
+  },
+  {
+   "lot_id": "LOT0004",
+   "wafer_no": 5,
+   "yield_pct": 95.61,
+   "bin": {
+    "good": 573,
+    "fail": 27
+   }
+  },
+  {
+   "lot_id": "LOT0005",
+   "wafer_no": 1,
+   "yield_pct": 89.39,
+   "bin": {
+    "good": 536,
+    "fail": 64
+   }
+  },
+  {
+   "lot_id": "LOT0005",
+   "wafer_no": 2,
+   "yield_pct": 84.8,
+   "bin": {
+    "good": 508,
+    "fail": 92
+   }
+  },
+  {
+   "lot_id": "LOT0005",
+   "wafer_no": 3,
+   "yield_pct": 90.05,
+   "bin": {
+    "good": 540,
+    "fail": 60
+   }
+  },
+  {
+   "lot_id": "LOT0005",
+   "wafer_no": 4,
+   "yield_pct": 97.15,
+   "bin": {
+    "good": 582,
+    "fail": 18
+   }
+  },
+  {
+   "lot_id": "LOT0005",
+   "wafer_no": 5,
+   "yield_pct": 88.51,
+   "bin": {
+    "good": 531,
+    "fail": 69
+   }
+  },
+  {
+   "lot_id": "LOT0006",
+   "wafer_no": 1,
+   "yield_pct": 92.73,
+   "bin": {
+    "good": 556,
+    "fail": 44
+   }
+  },
+  {
+   "lot_id": "LOT0006",
+   "wafer_no": 2,
+   "yield_pct": 93.28,
+   "bin": {
+    "good": 559,
+    "fail": 41
+   }
+  },
+  {
+   "lot_id": "LOT0006",
+   "wafer_no": 3,
+   "yield_pct": 89.34,
+   "bin": {
+    "good": 536,
+    "fail": 64
+   }
+  },
+  {
+   "lot_id": "LOT0006",
+   "wafer_no": 4,
+   "yield_pct": 94.89,
+   "bin": {
+    "good": 569,
+    "fail": 31
+   }
+  },
+  {
+   "lot_id": "LOT0006",
+   "wafer_no": 5,
+   "yield_pct": 89.46,
+   "bin": {
+    "good": 536,
+    "fail": 64
+   }
+  },
+  {
+   "lot_id": "LOT0007",
+   "wafer_no": 1,
+   "yield_pct": 96.76,
+   "bin": {
+    "good": 580,
+    "fail": 20
+   }
+  },
+  {
+   "lot_id": "LOT0007",
+   "wafer_no": 2,
+   "yield_pct": 96.08,
+   "bin": {
+    "good": 576,
+    "fail": 24
+   }
+  },
+  {
+   "lot_id": "LOT0007",
+   "wafer_no": 3,
+   "yield_pct": 94.42,
+   "bin": {
+    "good": 566,
+    "fail": 34
+   }
+  },
+  {
+   "lot_id": "LOT0007",
+   "wafer_no": 4,
+   "yield_pct": 88.59,
+   "bin": {
+    "good": 531,
+    "fail": 69
+   }
+  },
+  {
+   "lot_id": "LOT0007",
+   "wafer_no": 5,
+   "yield_pct": 93.17,
+   "bin": {
+    "good": 559,
+    "fail": 41
+   }
+  },
+  {
+   "lot_id": "LOT0008",
+   "wafer_no": 1,
+   "yield_pct": 96.65,
+   "bin": {
+    "good": 579,
+    "fail": 21
+   }
+  },
+  {
+   "lot_id": "LOT0008",
+   "wafer_no": 2,
+   "yield_pct": 89.82,
+   "bin": {
+    "good": 538,
+    "fail": 62
+   }
+  },
+  {
+   "lot_id": "LOT0008",
+   "wafer_no": 3,
+   "yield_pct": 87.37,
+   "bin": {
+    "good": 524,
+    "fail": 76
+   }
+  },
+  {
+   "lot_id": "LOT0008",
+   "wafer_no": 4,
+   "yield_pct": 85.26,
+   "bin": {
+    "good": 511,
+    "fail": 89
+   }
+  },
+  {
+   "lot_id": "LOT0008",
+   "wafer_no": 5,
+   "yield_pct": 93.51,
+   "bin": {
+    "good": 561,
+    "fail": 39
+   }
+  },
+  {
+   "lot_id": "LOT0009",
+   "wafer_no": 1,
+   "yield_pct": 91.85,
+   "bin": {
+    "good": 551,
+    "fail": 49
+   }
+  },
+  {
+   "lot_id": "LOT0009",
+   "wafer_no": 2,
+   "yield_pct": 95.54,
+   "bin": {
+    "good": 573,
+    "fail": 27
+   }
+  },
+  {
+   "lot_id": "LOT0009",
+   "wafer_no": 3,
+   "yield_pct": 96.11,
+   "bin": {
+    "good": 576,
+    "fail": 24
+   }
+  },
+  {
+   "lot_id": "LOT0009",
+   "wafer_no": 4,
+   "yield_pct": 90.07,
+   "bin": {
+    "good": 540,
+    "fail": 60
+   }
+  },
+  {
+   "lot_id": "LOT0009",
+   "wafer_no": 5,
+   "yield_pct": 91.43,
+   "bin": {
+    "good": 548,
+    "fail": 52
+   }
+  },
+  {
+   "lot_id": "LOT0010",
+   "wafer_no": 1,
+   "yield_pct": 96.69,
+   "bin": {
+    "good": 580,
+    "fail": 20
+   }
+  },
+  {
+   "lot_id": "LOT0010",
+   "wafer_no": 2,
+   "yield_pct": 94.58,
+   "bin": {
+    "good": 567,
+    "fail": 33
+   }
+  },
+  {
+   "lot_id": "LOT0010",
+   "wafer_no": 3,
+   "yield_pct": 97.33,
+   "bin": {
+    "good": 583,
+    "fail": 17
+   }
+  },
+  {
+   "lot_id": "LOT0010",
+   "wafer_no": 4,
+   "yield_pct": 87.14,
+   "bin": {
+    "good": 522,
+    "fail": 78
+   }
+  },
+  {
+   "lot_id": "LOT0010",
+   "wafer_no": 5,
+   "yield_pct": 93.95,
+   "bin": {
+    "good": 563,
+    "fail": 37
+   }
+  },
+  {
+   "lot_id": "LOT0011",
+   "wafer_no": 1,
+   "yield_pct": 89.57,
+   "bin": {
+    "good": 537,
+    "fail": 63
+   }
+  },
+  {
+   "lot_id": "LOT0011",
+   "wafer_no": 2,
+   "yield_pct": 92.23,
+   "bin": {
+    "good": 553,
+    "fail": 47
+   }
+  },
+  {
+   "lot_id": "LOT0011",
+   "wafer_no": 3,
+   "yield_pct": 95.29,
+   "bin": {
+    "good": 571,
+    "fail": 29
+   }
+  },
+  {
+   "lot_id": "LOT0011",
+   "wafer_no": 4,
+   "yield_pct": 93.32,
+   "bin": {
+    "good": 559,
+    "fail": 41
+   }
+  },
+  {
+   "lot_id": "LOT0011",
+   "wafer_no": 5,
+   "yield_pct": 92.87,
+   "bin": {
+    "good": 557,
+    "fail": 43
+   }
+  },
+  {
+   "lot_id": "LOT0012",
+   "wafer_no": 1,
+   "yield_pct": 91.83,
+   "bin": {
+    "good": 551,
+    "fail": 49
+   }
+  },
+  {
+   "lot_id": "LOT0012",
+   "wafer_no": 2,
+   "yield_pct": 90.74,
+   "bin": {
+    "good": 544,
+    "fail": 56
+   }
+  },
+  {
+   "lot_id": "LOT0012",
+   "wafer_no": 3,
+   "yield_pct": 91.06,
+   "bin": {
+    "good": 546,
+    "fail": 54
+   }
+  },
+  {
+   "lot_id": "LOT0012",
+   "wafer_no": 4,
+   "yield_pct": 90.88,
+   "bin": {
+    "good": 545,
+    "fail": 55
+   }
+  },
+  {
+   "lot_id": "LOT0012",
+   "wafer_no": 5,
+   "yield_pct": 85.07,
+   "bin": {
+    "good": 510,
+    "fail": 90
+   }
+  }
+ ]
+}

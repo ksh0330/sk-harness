@@ -1,0 +1,53 @@
+{
+  "tables": {
+    "plan": "schedule_ok.csv",
+    "lots": "schedule_lots.csv",
+    "eqp": "equipment.csv"
+  },
+  "rules": [
+    {
+      "rule": "not_null",
+      "table": "plan",
+      "columns": [
+        "lot_id",
+        "eqp_id",
+        "start",
+        "end"
+      ]
+    },
+    {
+      "rule": "same_keys",
+      "table": "plan",
+      "columns": [
+        "lot_id"
+      ],
+      "ref_table": "lots"
+    },
+    {
+      "rule": "fk",
+      "table": "plan",
+      "columns": [
+        "eqp_id"
+      ],
+      "ref_table": "eqp"
+    },
+    {
+      "rule": "order",
+      "table": "plan",
+      "columns": [
+        "start",
+        "end"
+      ],
+      "strict": true
+    },
+    {
+      "rule": "no_overlap",
+      "table": "plan",
+      "group": [
+        "eqp_id"
+      ],
+      "start": "start",
+      "end": "end"
+    }
+  ]
+}
