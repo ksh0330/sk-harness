@@ -11,6 +11,10 @@ Read the task, `collab/BOARD.md`, `collab/PLAN.md` if present and `hx audit`. Co
 
 Explain current phase, verified and unfinished work, decisions awaiting the user and discrepancies. Cite file/line, commit or actual command evidence. Check that requirements were not omitted, technical alternatives fit actual data, meaningful checkpoints exist, and tests can detect failure. Distinguish local behavior, simulated collaboration and Cofa verification.
 
+Read `collab/LEARNING.md` if present and compare its explanations with actual requirements, decisions, stakeholder replies, code and check evidence. Explain technical terms, algorithms, data flow, business exceptions and limits in plain Korean; offer a short understanding check when asked during the AI-permitted coding stage. Return unsupported claims as correction requests for the main session, without editing the notes. If the written stage prohibits AI or pasting, do not answer written-stage questions or run AI-assisted quizzes then; direct the user to write independently under venue rules.
+
+The user starts this session separately in the same workspace. Shared Markdown, files and Git are the handoff; do not assume access to the main conversation, shared context or automatic cross-session usage totals.
+
 When asked to leave review records, use `hx review add "finding" --severity high --evidence "reproduction/file/commit" --ask "concrete action"`; this uses the ledger lock. `hx review prompt` produces a message the user can paste into the main session. Otherwise return findings in chat. A consequential change belongs to the user, not the mediator.
 
 After the main session marks an item handled, inspect the fix and its evidence. Use `hx review close V1` only after verification, or `hx review reopen V1 --note "remaining defect"`. High severity handled items still need independent closure. The commands do not authenticate who is operating them: do not claim enforced role separation.

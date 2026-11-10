@@ -46,12 +46,17 @@ class Init(Base):
         self.assertTrue((self.dir / ".hx" / "DOMAIN.md").is_file())
         self.assertIn("# 작업 보드", (self.dir / "collab" / "BOARD.md").read_text(encoding="utf-8"))
         self.assertTrue((self.dir / "collab" / "INBOX.md").is_file())
+        learning = self.dir / "collab" / "LEARNING.md"
+        self.assertIn("# 구현 이해와 학습 기록", learning.read_text(encoding="utf-8"))
+        learning.write_text("내가 이해한 실제 구현과 근거\n", encoding="utf-8")
         config = json.loads((self.dir / ".hx" / "config.json").read_text(encoding="utf-8"))
         self.assertEqual((config["deadline"], config["phase"]), ("16:00", "analyze"))
         (self.dir / ".agents" / "skills" / "hx-ship" / "SKILL.md").write_text("내가 고친 스킬", encoding="utf-8")
         out = self.hx("init", "--hooks")                                  # idempotent, keeps the deadline and edits
         self.assertNotIn("created .agents", out)
         self.assertIn("kept existing .agents/skills/hx-ship/SKILL.md", out)
+        self.assertIn("kept existing collab/LEARNING.md", out)
+        self.assertEqual(learning.read_text(encoding="utf-8"), "내가 이해한 실제 구현과 근거\n")
         self.assertEqual(json.loads((self.dir / ".hx" / "config.json").read_text(encoding="utf-8"))["deadline"], "16:00")
         hooks = json.loads((self.dir / ".codex" / "hooks.json").read_text(encoding="utf-8"))["hooks"]
         self.assertEqual(sorted(hooks), ["PostToolUse", "PreToolUse", "SessionStart", "Stop", "UserPromptSubmit"])
@@ -59,6 +64,20 @@ class Init(Base):
         self.assertIn("/hooks", out)
         self.assertIn("deadline must look like", self.hx("init", "--deadline", "4pm", expect=2))
         self.assertFalse((self.dir / ".git").exists())                    # no git without --git
+
+    def test_init_path_and_file_conflicts_preserve_supplied_material(self):
+        original = {"TASK.md": "제공 과제\n", "data/input.csv": "id,value\n1,10\n",
+                    "AGENTS.md": "기존 지침\n", "collab/LEARNING.md": "기존 학습 기록\n"}
+        for name, content in original.items():
+            self.write(name, content)
+        before = {name: (self.dir / name).read_bytes() for name in original}
+        self.write(".hx", "reserved task file\n")
+        self.hx("init", expect=2)
+        self.assertEqual((self.dir / ".hx").read_bytes(), b"reserved task file\n")
+        self.hx("--root", self.dir / "TASK.md", "init", expect=2)
+        for name, content in before.items():
+            self.assertEqual((self.dir / name).read_bytes(), content, name)
+        self.assertFalse((self.dir / ".agents").exists())
 
     def test_fresh_folder_gets_agents_file_and_root_is_found_from_subfolders(self):
         self.hx("init")

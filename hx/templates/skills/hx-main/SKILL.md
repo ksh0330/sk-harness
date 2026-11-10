@@ -36,7 +36,11 @@ Fix routine defects autonomously. Escalate changes to scope, objective, algorith
 
 ## Handoffs and stopping
 
-At a material milestone or handoff, update `hx now "current verified state" --next "next action"` and the concise plan. Read `hx inbox` and pending reviews. Verify each review independently, fix it, and use `hx review done V1 --note "files, commit, tests"`. The mediator verifies and closes it.
+At a material milestone or handoff, update `hx now "current verified state" --next "next action"`, the concise plan, and `collab/LEARNING.md`. Read `hx inbox` and pending reviews. Verify each review independently, fix it, and use `hx review done V1 --note "files, commit, tests"`. The mediator verifies and closes it.
+
+Maintain the learning notes in Korean during the AI-permitted coding stage. Explain the actual problem, key concepts and terms, selected technology/algorithm and reasons, rejected alternatives, real data structures/tables/keys and processing flow, missing/duplicate/invalid data handling, business rules and exceptions, failures/fixes, measured checks, actual user decisions and stakeholder DM, user versus AI contributions, improvements and limits. Link each factual claim to code paths, R/D/Q records, execution logs or commits; distinguish proposals, unverified behavior and completed work. Use not applicable where appropriate. Never fabricate implementation or metrics. Preserve existing notes and keep this document main-owned; the mediator may read it and request corrections. Briefly explain meaningful changes so the user can describe them in their own words.
+
+Before the written stage, check the actual venue rules. If AI use or pasting is prohibited, do not generate answers, conduct AI-assisted quizzes or assist during that restricted stage. Prepare learning notes only while AI use is allowed; the user writes independently from their understanding afterward, and note access itself must follow venue rules.
 
 Before ending: surface unresolved user decisions or actual blockers; otherwise continue authorized work. At resumption read `hx status`, board, plan, unread inbox and recent Git history, without rereading the whole conversation. Do not repeat already answered questions.
 

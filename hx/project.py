@@ -19,6 +19,7 @@ Use `hx-main` at `.agents/skills/hx-main/SKILL.md` for the main session. If the 
 - Preserve meaningful milestones in local Git after reviewing the exact diff. `hx snap` stages the task tree, so use it only when all included changes belong to the task. For mixed work, use explicit Git paths and preserve any pre-existing index.
 - `hx gate` is evidence for registered checks, not a guarantee of product correctness. Match the original task against real outputs and disclose unverified behavior.
 - `collab/BOARD.md` is generated from the ledger. Main owns code and Git; mediator only writes review records. Prefer `hx review` over concurrent Markdown editing. Human INBOX edits must have one writer at a time.
+- Main maintains `collab/LEARNING.md` in Korean with actual code, decisions, stakeholder replies and verification evidence. The mediator reads and explains it. Respect any AI/paste ban during the written stage.
 - Hooks are optional reminders, not a security boundary or proof of consent. If hooks are unavailable, explicitly run status, inbox, gate, and checkpoint checks at milestones. Never bypass hook trust or alter global configuration.
 
 hx command: `{HX}`. Command reference: `.hx/GUIDE.md`.
@@ -61,6 +62,7 @@ def init(root, deadline=None, with_git=False, agents=True, with_hooks=False):
             _create(root / ".agents" / "skills" / skill.name / "SKILL.md", text, created, kept)
     if with_hooks:
         _create(root / ".codex" / "hooks.json", json.dumps(hooks.config_json(command), ensure_ascii=False, indent=2) + "\n", created, kept)
+    _create(root / "collab" / "LEARNING.md", (TEMPLATES / "LEARNING.md").read_text(encoding="utf-8"), created, kept)
     collab.write_board(root)
     if with_git:
         lines.append(snap.init_repo(root))
@@ -75,6 +77,7 @@ def init(root, deadline=None, with_git=False, agents=True, with_hooks=False):
         lines.append("  hooks: open Codex in this folder and approve them once with /hooks (they are skipped until trusted)")
     lines.append(f"hx command: {command}")
     lines.append("shared state: collab/BOARD.md (generated)  notes to the main session: collab/INBOX.md")
+    lines.append("learning notes: collab/LEARNING.md (main-owned, Korean, evidence-based)")
     return "\n".join(lines)
 
 
