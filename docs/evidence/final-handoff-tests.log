@@ -1,0 +1,22 @@
+# Final Handoff Verification Summary (2026-11-10 KST)
+
+## 1. Unit Test Suites (`tests/`) — 105 tests, 0 failures
+- `test_audit_evidence.py`: Ran 17 tests in 10.114s — OK
+- `test_practice_evaluator.py`: Ran 11 tests in 5.232s — OK
+- `test_tableio.py`: Ran 14 tests in 0.241s — OK
+- `test_profile.py`: Ran 12 tests in 0.778s — OK
+- `test_check.py`: Ran 10 tests in 4.223s — OK
+- `test_ledger.py`: Ran 10 tests in 52.391s — OK
+- `test_collab.py`: Ran 18 tests in 147.935s — OK
+- `test_project.py`: Ran 13 tests in 73.793s — OK (Windows HTTP loopback tests verified with local port binding/connection permitted)
+
+## 2. Practice Reference Tests (`practice/reference/etch-schedule/tests`) — 7 tests, 0 failures
+- Fixed Windows piped stdout/stderr UTF-8 reconfiguration in `practice/reference/etch-schedule/scheduler.py`.
+- `test_scheduler.py`: Ran 7 tests in 1.318s — OK (`TWT_FIFO=625 TWT=90`)
+
+## 3. Rehearsal Verification (`.audit-work/rehearsal`)
+- `verify_pm.py`: Ran 6 tests in 14.092s — OK (greedy baseline score=47, assigned=14; MILP optimal score=51, assigned=16/20, P1=7, P2=7, P3=2, gap=0).
+- `practice/evaluate_pm.py`:
+  - Direct CLI invocation fails `[header]` because `schedule_pm.py` outputs 10 columns (including `eqp_id,bay,skill,priority,duration_min,name`) while `ANSWERS.md` specifies 4 columns (`job_id,eng_id,start,end`).
+  - Evaluating the 4 required columns against all scheduling rules yields 0 violations (`PASS assigned=16/20 weighted_score=51`, P1=7, P2=7, P3=2).
+  - With `--e2-block` (not yet injected into rehearsal before usage limit), `J01` (E2, 23:30–01:30) is flagged as `[e2_break] J01`.

@@ -1,0 +1,35 @@
+test_all_skipped_tests_cannot_prove_a_requirement (test_audit_evidence.EvidenceAudit.test_all_skipped_tests_cannot_prove_a_requirement) ... ok
+test_automatic_checkpoint_preserves_existing_index (test_audit_evidence.EvidenceAudit.test_automatic_checkpoint_preserves_existing_index) ... ok
+test_blank_or_unlisted_choices_are_rejected_and_prompt_is_not_approval (test_audit_evidence.EvidenceAudit.test_blank_or_unlisted_choices_are_rejected_and_prompt_is_not_approval) ... ok
+test_brief_does_not_imply_approval_for_an_unanswered_question (test_audit_evidence.EvidenceAudit.test_brief_does_not_imply_approval_for_an_unanswered_question) ... ok
+test_checkpoint_without_tests_is_wip_only (test_audit_evidence.EvidenceAudit.test_checkpoint_without_tests_is_wip_only) ... ok
+test_data_and_rules_changes_invalidate_even_with_preserved_mtime (test_audit_evidence.EvidenceAudit.test_data_and_rules_changes_invalidate_even_with_preserved_mtime) ... ok
+test_deleted_source_invalidates_a_passing_check (test_audit_evidence.EvidenceAudit.test_deleted_source_invalidates_a_passing_check) ... ok
+test_dependency_changes_during_a_run_are_not_certified (test_audit_evidence.EvidenceAudit.test_dependency_changes_during_a_run_are_not_certified) ... ok
+test_handled_high_review_requires_independent_close (test_audit_evidence.EvidenceAudit.test_handled_high_review_requires_independent_close) ... ok
+test_legacy_evidence_remains_readable (test_audit_evidence.EvidenceAudit.test_legacy_evidence_remains_readable) ... ok
+test_lock_excludes_other_threads_and_allows_same_thread_nesting (test_audit_evidence.EvidenceAudit.test_lock_excludes_other_threads_and_allows_same_thread_nesting) ... ok
+test_parallel_runs_keep_all_ids_logs_and_check_definitions (test_audit_evidence.EvidenceAudit.test_parallel_runs_keep_all_ids_logs_and_check_definitions) ... ok
+test_read_only_audit_and_status_do_not_create_state (test_audit_evidence.EvidenceAudit.test_read_only_audit_and_status_do_not_create_state) ... ok
+test_review_cannot_skip_the_handled_state (test_audit_evidence.EvidenceAudit.test_review_cannot_skip_the_handled_state) ... ok
+test_scoped_fingerprint_ignores_unrelated_files (test_audit_evidence.EvidenceAudit.test_scoped_fingerprint_ignores_unrelated_files) ... ok
+test_unanswered_question_without_an_assumption_blocks_completion (test_audit_evidence.EvidenceAudit.test_unanswered_question_without_an_assumption_blocks_completion) ... ok
+test_zero_discovered_tests_still_fail (test_audit_evidence.EvidenceAudit.test_zero_discovered_tests_still_fail) ... ok
+test_category_variants_whitespace_and_mixed_dates (test_profile.ColumnProfiling.test_category_variants_whitespace_and_mixed_dates) ... ok
+test_duplicates_and_keys (test_profile.ColumnProfiling.test_duplicates_and_keys) ... ok
+test_duration_is_not_mistaken_for_a_ratio (test_profile.ColumnProfiling.test_duration_is_not_mistaken_for_a_ratio) ... ok
+test_gap_inside_one_group_is_found (test_profile.ColumnProfiling.test_gap_inside_one_group_is_found) ... ok
+test_id_with_accidental_repeat (test_profile.ColumnProfiling.test_id_with_accidental_repeat) ... ok
+test_percent_scale_mix_and_future_date (test_profile.ColumnProfiling.test_percent_scale_mix_and_future_date) ... ok
+test_sentinel_outlier_negative_and_thousands (test_profile.ColumnProfiling.test_sentinel_outlier_negative_and_thousands) ... ok
+test_text_hidden_in_a_numeric_column_is_high (test_profile.ColumnProfiling.test_text_hidden_in_a_numeric_column_is_high) ... ok
+test_types_and_missing_tokens (test_profile.ColumnProfiling.test_types_and_missing_tokens) ... ok
+test_every_injected_sample_defect_is_reported (test_profile.InjectedDefects.test_every_injected_sample_defect_is_reported)
+Scores the profiler against samples/make_samples.py: each planted defect must surface. ... ok
+test_orphans_case_hint_and_duplicate_parent (test_profile.Relations.test_orphans_case_hint_and_duplicate_parent) ... ok
+test_parent_with_one_duplicate_still_counts_as_the_key (test_profile.Relations.test_parent_with_one_duplicate_still_counts_as_the_key) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 2.812s
+
+OK

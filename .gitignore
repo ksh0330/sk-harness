@@ -1,7 +1,11 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.venv/
+venv/
 .audit-work/
+.hx/run/
+*.tmp
 .env
 .env.*
 *.pem

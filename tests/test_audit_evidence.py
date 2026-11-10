@@ -165,6 +165,11 @@ class EvidenceAudit(TempCase):
         self.assertFalse(result["ok"])
         self.assertIn("source_changed_during_run", result["flags"])
 
+    def test_unanswered_question_without_an_assumption_blocks_completion(self):
+        self.prepare()
+        ledger.add_question(self.dir, "What is the objective?", to="dm")
+        self.assertTrue(any("Q1 unanswered" in block for block in ledger.gate_eval(self.dir)[0]))
+
     def test_review_cannot_skip_the_handled_state(self):
         item = collab.review_add(self.dir, "Reproduce the defect", severity="high")
         with self.assertRaises(ValueError):

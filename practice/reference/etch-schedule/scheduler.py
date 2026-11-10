@@ -110,6 +110,11 @@ def write(path, header, rows):
 
 
 def main(argv):
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
     if len(argv) != 3:
         print("usage: python scheduler.py <data_dir> <out_dir>", file=sys.stderr)
         return 2

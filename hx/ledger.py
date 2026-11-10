@@ -600,9 +600,9 @@ def gate_eval(root):
         if item["kind"] == "REVIEW" and item["status"] == "handled" and item["severity"] == "high":
             blocks.append(f"{item['id']} high review is handled but awaits independent verification and close")
         if item["kind"] == "QUESTION" and item["status"] == "open":
-            warns.append(f"{item['id']} unanswered: {util.short(item['text'], 50)} -> "
+            (warns if item["assume"] else blocks).append(f"{item['id']} unanswered: {util.short(item['text'], 50)} -> "
                          + (f"assuming {util.short(item['assume'], 50)!r}; state the assumption in the deliverable"
-                            if item["assume"] else "NO assumption recorded"))
+                            if item["assume"] else "NO assumption recorded; wait for the answer"))
     return blocks, warns, text
 
 
