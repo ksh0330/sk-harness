@@ -1,0 +1,37 @@
+test_failed_expectations_are_listed (test_project.AppAndSmoke.test_failed_expectations_are_listed) ... ok
+test_port_already_in_use_is_not_mistaken_for_the_new_server (test_project.AppAndSmoke.test_port_already_in_use_is_not_mistaken_for_the_new_server) ... ok
+test_scaffold_passes_its_own_tests_and_smoke_and_frees_the_port (test_project.AppAndSmoke.test_scaffold_passes_its_own_tests_and_smoke_and_frees_the_port) ... ok
+test_server_that_dies_is_reported_with_its_log (test_project.AppAndSmoke.test_server_that_dies_is_reported_with_its_log) ... ok
+test_existing_repository_is_tagged_not_rewritten (test_project.Checkpoints.test_existing_repository_is_tagged_not_rewritten) ... ok
+test_kit_cloned_inside_the_task_is_not_committed_into_it (test_project.Checkpoints.test_kit_cloned_inside_the_task_is_not_committed_into_it) ... ok
+test_refuses_inside_a_parent_repo (test_project.Checkpoints.test_refuses_inside_a_parent_repo) ... ok
+test_snap_tags_a_verified_state_and_back_restores_it_without_losing_work (test_project.Checkpoints.test_snap_tags_a_verified_state_and_back_restores_it_without_losing_work) ... ok
+test_snapshot_leaves_out_dependencies_huge_files_secrets_and_a_nested_kit (test_project.Checkpoints.test_snapshot_leaves_out_dependencies_huge_files_secrets_and_a_nested_kit) ... ok
+test_both_launch_forms_and_doctor (test_project.Init.test_both_launch_forms_and_doctor) ... ok
+test_fresh_folder_gets_agents_file_and_root_is_found_from_subfolders (test_project.Init.test_fresh_folder_gets_agents_file_and_root_is_found_from_subfolders) ... ok
+test_init_deploys_codex_files_and_never_overwrites_user_files (test_project.Init.test_init_deploys_codex_files_and_never_overwrites_user_files) ... ok
+test_init_path_and_file_conflicts_preserve_supplied_material (test_project.Init.test_init_path_and_file_conflicts_preserve_supplied_material) ... ok
+test_snap_without_git_repo_explains_what_to_do (test_project.NoRepo.test_snap_without_git_repo_explains_what_to_do) ... ok
+test_decision_waits_for_the_user_and_blocks_completion_until_answered (test_collab.Decisions.test_decision_waits_for_the_user_and_blocks_completion_until_answered) ... ok
+test_stakeholder_questions_feedback_and_inbox (test_collab.Decisions.test_stakeholder_questions_feedback_and_inbox) ... ok
+test_with_hooks_the_agent_cannot_answer_its_own_question (test_collab.Decisions.test_with_hooks_the_agent_cannot_answer_its_own_question) ... ok
+test_hooks_fail_open (test_collab.Hooks.test_hooks_fail_open) ... ok
+test_post_tool_reports_a_file_that_does_not_parse (test_collab.Hooks.test_post_tool_reports_a_file_that_does_not_parse) ... ok
+test_pre_tool_asks_for_approval_before_risky_commands (test_collab.Hooks.test_pre_tool_asks_for_approval_before_risky_commands) ... ok
+test_pre_tool_keeps_product_code_out_of_the_analysis_phase (test_collab.Hooks.test_pre_tool_keeps_product_code_out_of_the_analysis_phase) ... ok
+test_session_start_and_prompt_inject_state_and_record_that_the_user_spoke (test_collab.Hooks.test_session_start_and_prompt_inject_state_and_record_that_the_user_spoke) ... ok
+test_stop_blocks_an_unfounded_completion_claim_once (test_collab.Hooks.test_stop_blocks_an_unfounded_completion_claim_once) ... ok
+test_stop_never_blocks_while_waiting_for_the_user (test_collab.Hooks.test_stop_never_blocks_while_waiting_for_the_user) ... ok
+test_intake_reads_documents_data_and_tooling_in_one_pass (test_collab.IntakeAndShip.test_intake_reads_documents_data_and_tooling_in_one_pass) ... ok
+test_ship_ties_requirements_to_proof_and_catches_last_minute_problems (test_collab.IntakeAndShip.test_ship_ties_requirements_to_proof_and_catches_last_minute_problems) ... ok
+test_audit_finds_what_the_main_session_did_not_say (test_collab.Mediator.test_audit_finds_what_the_main_session_did_not_say) ... ok
+test_review_items_travel_from_mediator_to_main_and_back (test_collab.Mediator.test_review_items_travel_from_mediator_to_main_and_back) ... ok
+test_two_sessions_writing_at_once_lose_nothing (test_collab.Mediator.test_two_sessions_writing_at_once_lose_nothing) ... ok
+test_unrecorded_rerun_and_scoped_staleness (test_collab.Mediator.test_unrecorded_rerun_and_scoped_staleness) ... ok
+test_design_needs_a_real_choice_between_approaches_and_force_is_recorded (test_collab.Phases.test_design_needs_a_real_choice_between_approaches_and_force_is_recorded) ... ok
+test_phases_enforce_asking_first_and_commit_at_each_boundary (test_collab.Phases.test_phases_enforce_asking_first_and_commit_at_each_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 309.563s
+
+OK

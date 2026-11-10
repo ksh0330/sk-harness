@@ -1,0 +1,57 @@
+{
+  "cli": "0.165.0",
+  "prompt_input_exit": 0,
+  "agents_in_prompt": true,
+  "learning_guidance_in_prompt": true,
+  "native_hooks": "disabled; not tested",
+  "cofa": "not available",
+  "linux": "no runtime available",
+  "skills": [
+    {
+      "name": "hx-design",
+      "enabled": true
+    },
+    {
+      "name": "hx-main",
+      "enabled": true
+    },
+    {
+      "name": "hx-mediator",
+      "enabled": true
+    },
+    {
+      "name": "hx-ship",
+      "enabled": true
+    }
+  ],
+  "main": {
+    "process_exit": "timeout",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "commands": 8,
+    "failed_commands": 0,
+    "files_unchanged": false,
+    "git_head_exists": false,
+    "usage_events": [],
+    "behavior": "pending independent event inspection"
+  },
+  "mediator": {
+    "process_exit": 0,
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "commands": 14,
+    "failed_commands": 2,
+    "files_unchanged": true,
+    "git_head_exists": false,
+    "usage_events": [
+      {
+        "input_tokens": 432428,
+        "cached_input_tokens": 379008,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 5226,
+        "reasoning_output_tokens": 693
+      }
+    ],
+    "behavior": "pending independent event inspection"
+  }
+}

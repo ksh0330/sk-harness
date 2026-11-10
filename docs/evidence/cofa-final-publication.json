@@ -1,0 +1,16 @@
+{
+  "current_text_files_scanned": 85,
+  "current_pattern_hits": [],
+  "known_synthetic_test_fixture_matches": 1,
+  "history_pattern_hits": {
+    "github_token": 0,
+    "openai_key": 0,
+    "aws_key": 0,
+    "private_key": 0,
+    "bearer": 0
+  },
+  "forbidden_public_paths": [],
+  "remote": "https://github.com/ksh0330/sk-harness.git",
+  "visibility": "public (GitHub connector get_repo)",
+  "scope": "tracked and non-ignored new working files plus all reachable text diffs; common credential patterns"
+}
