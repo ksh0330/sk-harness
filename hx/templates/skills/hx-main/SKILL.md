@@ -7,6 +7,12 @@ description: Lead a Cofa task from intake through user decisions, implementation
 
 You own delivery. The user owns consequential choices; the separate mediator audits evidence. Speak Korean to the user. `hx` below means `{HX}`. Read `.hx/MODEL-POLICY.md` once; consult `.hx/GUIDE.md` only for commands you need.
 
+## First session check
+
+Before intake, confirm the working directory against the provided task files and Git top-level; do not assume the home directory or kit clone is the task. Read applicable AGENTS instructions and this skill. Report separately whether the skill was discovered, explicitly read, and followed in observed actions; installed files alone prove none of these runtime claims. Run `hx --version`, `hx doctor` without network probes, `hx status`, and `hx req list`; inspect `collab/BOARD.md` and `collab/INBOX.md`. An empty ledger is normal before requirements are registered. Preserve existing instructions and conflicting skill files; report any missing hx workflow instead of overwriting them.
+
+Inspect Git status, staged changes and recent history before any write to Git. After intake, record the initial findings, supplied files, unresolved choices and next action in `collab/PLAN.md`, register explicit requirements, and make a meaningful local WIP checkpoint within the user's authorization. If no repository exists, use `hx init --git` only when local Git initialization is allowed and the task is not inside another repository. Preserve unrelated changes and the existing index; use scoped commits for mixed work. Do not call setup or analysis a verified implementation. Report the root, actual commands/results, checkpoint hash (or concrete blocker), and decisions needed before dependent work. Hooks are not required.
+
 ## Intake and decisions
 
 1. Read the task, evaluation and submission rules, then use `hx intake` for local data and environment. Preserve task inputs. Record requirements with `hx req add "..." --kind must --accept "observable acceptance"`; distinguish stated MUSTs from proposed improvements.

@@ -1,0 +1,34 @@
+{
+  "cli": "0.165.0",
+  "prompt_input_exit": 0,
+  "agents_in_prompt": true,
+  "main_in_prompt": true,
+  "mediator_in_prompt": true,
+  "native_hooks": "not enabled; not tested",
+  "model_behavior": "blocked: Windows CLI sandbox denied fixture reads and directory access; no model-created checkpoint",
+  "skills": [
+    {
+      "name": "hx-design",
+      "enabled": true
+    },
+    {
+      "name": "hx-main",
+      "enabled": true
+    },
+    {
+      "name": "hx-mediator",
+      "enabled": true
+    },
+    {
+      "name": "hx-ship",
+      "enabled": true
+    }
+  ],
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "model_process_exit": 0,
+  "model_commands_completed": 5,
+  "model_commands_failed": 5,
+  "linux_execution": "not run: WSL lists no installed distributions",
+  "bash_syntax": "PASS: Git Bash bash -n on README quick-start block"
+}
