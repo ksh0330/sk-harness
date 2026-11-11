@@ -1,0 +1,9 @@
+test_both_launch_forms_and_doctor (test_project.Init.test_both_launch_forms_and_doctor) ... ok
+test_fresh_folder_gets_agents_file_and_root_is_found_from_subfolders (test_project.Init.test_fresh_folder_gets_agents_file_and_root_is_found_from_subfolders) ... ok
+test_init_deploys_codex_files_and_never_overwrites_user_files (test_project.Init.test_init_deploys_codex_files_and_never_overwrites_user_files) ... ok
+test_init_path_and_file_conflicts_preserve_supplied_material (test_project.Init.test_init_path_and_file_conflicts_preserve_supplied_material) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 10.241s
+
+OK
